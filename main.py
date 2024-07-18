@@ -2,6 +2,13 @@ import tkinter as tk
 from ttkbootstrap import *
 from PIL import ImageTk, Image 
 
+def pull1():
+    pass
+
+def pull10():
+    pass
+
+
 root = tk.Tk()
 root.title("Warp Simulator")
 root.geometry("800x500")
@@ -31,9 +38,10 @@ tk.Label(cone_tab, image=cone_banner).pack()
 # Terceira aba
 standard_tab = Frame(notebook,width=200,height=200)
 notebook.add(standard_tab, text="Standard", padding=10)
-standard_banner = ImageTk.PhotoImage(Image.open("imagens/standard_banner.png"))
-tk.Label(standard_tab, image=standard_banner).pack()  
+warp = Image.open("imagens/Stellar_Warp.png")
+warp1 = warp.resize((700,387))
+warp_r = ImageTk.PhotoImage(warp1)
+tk.Label(standard_tab, image=warp_r).pack()
     
-
 
 root.mainloop()

@@ -17,9 +17,11 @@ notebook.pack(expand=True, fill='both')
 
 # Primeira aba
 firefly_tab = Frame(notebook,width=200,height=200)
-notebook.add(firefly_tab, text="Firefly", padding=10) 
-#image1 = Image.open("<imagens/firefly_banner.png>")
-tk.Label(firefly_tab, text="awoooooooooo").pack()
+notebook.add(firefly_tab, text="teste", padding=10) 
+image1 = Image.open("imagens/Stellar_Warp.png")
+resized = image1.resize((700,500))
+resized_final = ImageTk.PhotoImage(resized)
+tk.Label(firefly_tab, image=resized_final).pack()
 
 
 # Segunda aba
