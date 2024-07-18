@@ -2,12 +2,6 @@ import tkinter as tk
 from ttkbootstrap import *
 from PIL import ImageTk, Image 
 
-def pull1():
-    pass
-
-def pull10():
-    pass
-
 
 root = tk.Tk()
 root.title("Warp Simulator")
