@@ -22,18 +22,21 @@ style.configure('TNotebook.Tab', width=15)
 notebook = Notebook(style='custom.TNotebook')
 notebook.pack(expand=True, fill='both') 
 image_references = []
+
+def botoes(tab):
+    frame = Frame(tab,bootstyle="dark")
+    frame.pack(side="bottom",fill="both")
+    button1 = Button(tab,bootstyle="dark",text="Warp 1x")
+    button10 = Button(tab,bootstyle="dark",text="Warp 10x")
+    button1.pack(in_=frame,anchor='s',side='left',fill="both",expand=True)
+    button10.pack(in_=frame,anchor='s',side='right',fill="both",expand=True)
 def firefly(): # Primeira aba
     firefly_tab = Frame(notebook,width=200,height=200)
     notebook.add(firefly_tab, text="Firefly", padding=10) 
     firefly_banner = ImageTk.PhotoImage(Image.open("imagens/firefly_banner.png"))
     image_references.append(firefly_banner)
     Label(firefly_tab, image=firefly_banner).pack()
-    frame = Frame(firefly_tab,bootstyle="dark")
-    frame.pack(side="bottom",fill="both")
-    button1 = Button(firefly_tab,bootstyle="dark",text="Warp 1x")
-    button10 = Button(firefly_tab,bootstyle="dark",text="Warp 10x")
-    button1.pack(in_=frame,anchor='s',side='left',fill="both",expand=True)
-    button10.pack(in_=frame,anchor='s',side='right',fill="both",expand=True)
+    botoes(firefly_tab)
 
 def cone(): # Segunda aba
     cone_tab = Frame(notebook,width=200,height=200)
@@ -41,12 +44,7 @@ def cone(): # Segunda aba
     cone_banner = ImageTk.PhotoImage(Image.open("imagens/cone_banner.png"))
     image_references.append(cone_banner)
     Label(cone_tab, image=cone_banner).pack()  
-    frame = Frame(cone_tab,bootstyle="dark")
-    frame.pack(side="bottom",fill="both")
-    button1 = Button(cone_tab,bootstyle="dark",text="Warp 1x")
-    button10 = Button(cone_tab,bootstyle="dark",text="Warp 10x")
-    button1.pack(in_=frame,anchor='s',side='left',fill="both",expand=True)
-    button10.pack(in_=frame,anchor='s',side='right',fill="both",expand=True)
+    botoes(cone_tab)
 
 def standard(): # Terceira aba
     standard_tab = Frame(notebook,width=200,height=200)
@@ -56,12 +54,7 @@ def standard(): # Terceira aba
     warp_r = ImageTk.PhotoImage(warp1)
     image_references.append(warp_r)
     Label(standard_tab, image=warp_r).pack()
-    frame = Frame(standard_tab,bootstyle="dark")
-    frame.pack(side="bottom",fill="both")
-    button1 = Button(standard_tab,bootstyle="dark",text="Warp 1x")
-    button10 = Button(standard_tab,bootstyle="dark",text="Warp 10x")
-    button1.pack(in_=frame,anchor='s',side='left',fill="both",expand=True)
-    button10.pack(in_=frame,anchor='s',side='right',fill="both",expand=True)
+    botoes(standard_tab)
     
     
 def main():
