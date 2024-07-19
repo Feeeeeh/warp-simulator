@@ -1,7 +1,7 @@
 import tkinter as tk
 from ttkbootstrap import *
 from PIL import ImageTk, Image 
-from pulls import pull1x,pull10x
+from gif_loader import AnimatedGif
 
 root = tk.Tk()
 root.title("Warp Simulator")
@@ -49,7 +49,14 @@ def standard(): # Terceira aba
     image_references.append(warp_r)
     Label(standard_tab, image=warp_r).pack()
     botoes(standard_tab)
-    
+
+def pull1x():
+    print("1 pull")
+    new_window = Toplevel(root)
+    gif = AnimatedGif(new_window, 'imagens/qiqi.gif')
+    gif.pack()
+def pull10x():
+    print("10 pulls")
     
 def main():
     firefly()

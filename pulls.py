@@ -8,4 +8,4 @@ def pull1x():
     root.mainloop()
 def pull10x():
     print("10 pulls")
-    
+
