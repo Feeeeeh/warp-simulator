@@ -13,8 +13,14 @@ conexao = mysql.connector.connect(
 # Cria um cursor para executar operações SQL
 cursor = conexao.cursor()
 
-# Exemplo de consulta SQL
-consulta = "SELECT * FROM gacha_ff"
+# Verificar se a conexão foi bem sucedida
+if conexao.is_connected():
+    print('Conexão ao banco de dados MySQL estabelecida.')
+
+
+
+consulta = "SELECT * FROM gacha_ff ORDER BY RAND() LIMIT 1"
+consulta2 = "SELECT * FROM gacha_ff ORDER BY RAND() LIMIT 10"
 
 # Executa a consulta
 cursor.execute(consulta)
@@ -24,7 +30,6 @@ resultados = cursor.fetchall()
 
 # Imprime os resultados
 for linha in resultados:
-    _random
     print(linha)
 
 # Fecha o cursor e a conexão
@@ -32,3 +37,4 @@ cursor.close()
 conexao.close()
 
 
+#pip install mysql-connector-python
