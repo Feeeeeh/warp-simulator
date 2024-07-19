@@ -20,7 +20,7 @@ image_references = []
 def botoes(tab):
     frame = Frame(tab,bootstyle="dark")
     frame.pack(side="bottom",fill="both")
-    button1 = Button(tab,bootstyle="dark",text="Warp 1x", command=pull1x)
+    button1 = Button(tab,bootstyle="dark",text="Warp 1x", command= pull1x)
     button10 = Button(tab,bootstyle="dark",text="Warp 10x",command=pull10x)
     button1.pack(in_=frame,anchor='s',side='left',fill="both",expand=True)
     button10.pack(in_=frame,anchor='s',side='right',fill="both",expand=True)

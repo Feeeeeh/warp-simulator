@@ -44,6 +44,6 @@ class AnimatedGif:
 
 if __name__ in '__main__':
     root = tk.Tk()
-    gif = AnimatedGif(root, 'imagens/5_estrelas.gif')
+    gif = AnimatedGif(root, 'imagens/qiqi.gif')
     gif.pack()
     root.mainloop()
