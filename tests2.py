@@ -1,49 +1,50 @@
-##Author: Shantanu gupta
-##This short script helps to display GIF in tkinter label
-##note: missing pause gif function
-import _thread
+from PIL import Image, ImageSequence
 from tkinter import *
-import time
-class gifplay:
-    """
-    Usage: mygif=gifplay(<<tkinter.label Objec>>,<<GIF path>>,<<frame_rate(in ms)>>)
-    example:
-    gif=GIF.gifplay(self.model2,'./res/neural.gif',0.1)
-    gif.play()
-    This will play gif infinitely
-    """
-    def __init__(self,  label,giffile,delay):
-        self.frame=[]
-        i=0
-        while 1:
-            try:
-                image=PhotoImage(file = giffile, format="gif -index "+str(i))
-                self.frame.append(image)
-                i=i+1
-            except:
-                break
-        print(i)
-        self.totalFrames=i-1
-        self.delay=delay
-        self.labelspace=label
-        self.labelspace.image=self.frame[0]
 
-    def play(self):
-        """
-        plays the gif
-        """
-        _thread.start_new_thread(self.infinite,())
+def unpack_gif(src):
+    # Load Gif
+    image = Image.open(src)
 
-    def infinite(self):
-        i=0
-        while 1:
-            self.labelspace.configure(image=self.frame[i])
-            i=(i+1)%self.totalFrames
-            time.sleep(self.delay)
+    # Get frames and disposal method for each frame
+    frames = []
+    disposal = []
+    for gifFrame in ImageSequence.Iterator(image):
+        disposal.append(gifFrame.disposal_method)
+        frames.append(gifFrame.convert('P'))
+
+    # Loop through frames, and edit them based on their disposal method
+    output = []
+    lastFrame = None
+    thisFrame = None
+    for i, loadedFrame in enumerate(frames):
+        # Update thisFrame
+        thisFrame = loadedFrame
+
+        # If the disposal method is 2
+        if disposal[i] == 2:
+            # Check that this is not the first frame
+            if i != 0:
+                # Pastes thisFrames opaque pixels over lastFrame and appends lastFrame to output
+                lastFrame.paste(thisFrame, mask=thisFrame.convert('RGBA'))
+                output.append(lastFrame)
+            else:
+                output.append(thisFrame)
+
+        # If the disposal method is 1 or 0
+        elif disposal[i] == 1 or disposal[i] == 0:
+            # Appends thisFrame to output
+            output.append(thisFrame)
+
+        # If disposal method if anything other than 2, 1, or 0
+        else:
+            raise ValueError('Disposal Methods other than 2:Restore to Background, 1:Do Not Dispose, and 0:No Disposal are supported at this time')
+
+        # Update lastFrame
+        lastFrame = loadedFrame
+
+    return output
             
 root = Tk()
-root.title("gif script")
 label = Label(root)
-label.pack(pady=10)
-gif =gifplay(label,"imagens/5_estrleas.gif",0.1)
-gif.play()
+label.pack()
+root.mainloop
