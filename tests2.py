@@ -1,29 +1,49 @@
-import tkinter as tk
-from tkinter import ttk
-from PIL import ImageTk, Image 
+##Author: Shantanu gupta
+##This short script helps to display GIF in tkinter label
+##note: missing pause gif function
+import _thread
+from tkinter import *
+import time
+class gifplay:
+    """
+    Usage: mygif=gifplay(<<tkinter.label Objec>>,<<GIF path>>,<<frame_rate(in ms)>>)
+    example:
+    gif=GIF.gifplay(self.model2,'./res/neural.gif',0.1)
+    gif.play()
+    This will play gif infinitely
+    """
+    def __init__(self,  label,giffile,delay):
+        self.frame=[]
+        i=0
+        while 1:
+            try:
+                image=PhotoImage(file = giffile, format="gif -index "+str(i))
+                self.frame.append(image)
+                i=i+1
+            except:
+                break
+        print(i)
+        self.totalFrames=i-1
+        self.delay=delay
+        self.labelspace=label
+        self.labelspace.image=self.frame[0]
 
-root = tk.Tk()
-root.title("Warp Simulator")
-root.geometry("800x500")
+    def play(self):
+        """
+        plays the gif
+        """
+        _thread.start_new_thread(self.infinite,())
 
-# Notebook (tabs)
-notebook = ttk.Notebook(root, width=800, height=500)
-notebook.pack(expand=True, fill='both')
-
-# First tab
-firefly_tab = ttk.Frame(notebook)
-notebook.add(firefly_tab, text="Test Tab")
-
-# Load and resize image
-image_path = "imagens/Stellar_Warp.png"
-image = Image.open(image_path)
-# Resize image
-resized_image = image.resize((200, 200))
-# Convert Image object to PhotoImage object
-resized_photo = ImageTk.PhotoImage(resized_image)
-
-# Display resized image in a label
-image_label = tk.Label(firefly_tab, image=resized_photo)
-image_label.pack()
-
-root.mainloop()
+    def infinite(self):
+        i=0
+        while 1:
+            self.labelspace.configure(image=self.frame[i])
+            i=(i+1)%self.totalFrames
+            time.sleep(self.delay)
+            
+root = Tk()
+root.title("gif script")
+label = Label(root)
+label.pack(pady=10)
+gif =gifplay(label,"imagens/5_estrleas.gif",0.1)
+gif.play()
