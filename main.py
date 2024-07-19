@@ -1,47 +1,84 @@
-import tkinter as tk
-from ttkbootstrap import *
-from PIL import ImageTk, Image 
+import mysql.connector
+import random
 
-def pull1():
-    pass
+# Função para realizar uma consulta aleatória em uma tabela específica
+def realizar_consulta_aleatoria(tabela, quantidade, cursor):
+    try:
+        # Constrói a consulta SQL com base na tabela e na quantidade especificada
+        query = f"SELECT * FROM {tabela} ORDER BY RAND() LIMIT {quantidade}"
 
-def pull10():
-    pass
+        # Executa a consulta
+        cursor.execute(query)
 
+        # Obtém todos os resultados da consulta
+        resultados = cursor.fetchall()
 
-root = tk.Tk()
-root.title("Warp Simulator")
-root.geometry("800x500")
+        # Imprime os resultados
+        for linha in resultados:
+            print(linha)
 
-# Configuração do estilo ttkbootstrap
-style = Style(theme='darkly')  # Escolha do tema 'darkly'
-style.configure('custom.TNotebook', tabposition="wn",padding=[5, 5])
-style.configure('TNotebook.Tab', width=15)
+    except mysql.connector.Error as e:
+        print(f"Erro ao executar a consulta SQL: {e}")
 
-# Notebook (abas)
-notebook = Notebook(style='custom.TNotebook')
-notebook.pack(expand=True, fill='both') 
+# Função principal para escolher a operação
+def escolher_operacao(conexao, cursor):
+    try:
+        while True:
+            # Mostra opções para o usuário
+            print("\nOpções disponíveis:")
+            print("1. Realizar pull aleatório de gacha_ff (1 item)")
+            print("2. Realizar pull aleatório de gacha_ff (10 itens)")
+            print("3. Realizar pull aleatório de gacha_arma (1 item)")
+            print("4. Realizar pull aleatório de gacha_arma (10 itens)")
+            print("5. Realizar pull aleatório de gacha_base (1 item)")
+            print("6. Realizar pull aleatório de gacha_base (10 itens)")
+            print("7. Sair do programa")
 
-# Primeira aba
-firefly_tab = Frame(notebook,width=200,height=200)
-notebook.add(firefly_tab, text="Firefly", padding=10) 
-firefly_banner = ImageTk.PhotoImage(Image.open("imagens/firefly_banner.png"))
-tk.Label(firefly_tab, image=firefly_banner).pack()
+            # Solicita ao usuário que escolha uma opção
+            escolha = int(input("Escolha o número correspondente à operação que deseja executar: "))
 
+            if escolha == 1:
+                realizar_consulta_aleatoria("gacha_ff", 1, cursor)
+            elif escolha == 2:
+                realizar_consulta_aleatoria("gacha_ff", 10, cursor)
+            elif escolha == 3:
+                realizar_consulta_aleatoria("gacha_arma", 1, cursor)
+            elif escolha == 4:
+                realizar_consulta_aleatoria("gacha_arma", 10, cursor)
+            elif escolha == 5:
+                realizar_consulta_aleatoria("gacha_base", 1, cursor)
+            elif escolha == 6:
+                realizar_consulta_aleatoria("gacha_base", 10, cursor)
+            elif escolha == 7:
+                print("Encerrando o programa...")
+                break
+            else:
+                print("Opção inválida. Por favor, escolha uma opção válida.")
 
-# Segunda aba
-cone_tab = Frame(notebook,width=200,height=200)
-notebook.add(cone_tab, text="Light Cone", padding=10)
-cone_banner = ImageTk.PhotoImage(Image.open("imagens/cone_banner.png"))
-tk.Label(cone_tab, image=cone_banner).pack()  
+    except ValueError:
+        print("Por favor, digite um número válido para a escolha da operação.")
 
-# Terceira aba
-standard_tab = Frame(notebook,width=200,height=200)
-notebook.add(standard_tab, text="Standard", padding=10)
-warp = Image.open("imagens/Stellar_Warp.png")
-warp1 = warp.resize((700,387))
-warp_r = ImageTk.PhotoImage(warp1)
-tk.Label(standard_tab, image=warp_r).pack()
-    
+    except Exception as e:
+        print(f"Ocorreu um erro: {e}")
 
-root.mainloop()
+# Conectar ao banco de dados MySQL
+conexao = mysql.connector.connect(
+    host="localhost",
+    user="root",
+    password="",
+    database="Lucas_nascimento"
+)
+
+# Verificar se a conexão foi bem sucedida
+if conexao.is_connected():
+    print('Conexão ao banco de dados MySQL estabelecida.')
+
+    # Cria um cursor para executar operações SQL
+    cursor = conexao.cursor()
+
+    # Chama a função para escolher a operação
+    escolher_operacao(conexao, cursor)
+
+    # Fecha o cursor e a conexão
+    cursor.close()
+    conexao.close()
