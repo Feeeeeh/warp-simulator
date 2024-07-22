@@ -1,7 +1,7 @@
 import tkinter as tk
 from ttkbootstrap import Style, Frame, Button, Notebook
 from PIL import ImageTk, Image
-from gif_loader import AnimatedGif
+from gif_test import AnimatedGif
 import random
 
 class WarpSimulator:
@@ -21,8 +21,9 @@ class WarpSimulator:
         self.image_references = []
 
         self.firefly_pulls = ["imagens/firefly_pull.png", "imagens/bailu_pull.png", "imagens/himeko_pull.png"]
+
         self.fila = []
-        self.result_windows = []
+        self.current_10x_index = 0  # To track current index for 10x pulls
 
         self.create_tabs()
 
@@ -61,62 +62,64 @@ class WarpSimulator:
         print("1 pull")
         resultado = random.choice(self.firefly_pulls)
         print(resultado)
-        self.show_gif(resultado)
+        self.show_gif_and_result(resultado)
 
     def pull10x(self):
         print("10 pulls")
         self.fila = [random.choice(self.firefly_pulls) for _ in range(10)]
         print(self.fila)
-        self.show_gif()
+        self.current_10x_index = 0  # Reset index for new 10x pulls
+        self.show_gif_and_result(self.fila[self.current_10x_index])
 
-    def show_gif(self, result_image_path=None):
-        gif_window = tk.Toplevel(self.root)
-        gif = AnimatedGif(gif_window, "imagens/5_estrelas.gif", loop=False, on_complete=lambda: self.show_result(gif_window, result_image_path))
+    def show_gif_and_result(self, resultado):
+        new_window = tk.Toplevel(self.root)
+        if isinstance(resultado, str):  # Single pull
+            gif_path = "imagens/5_estrelas.gif" if resultado == "imagens/firefly_pull.png" else "imagens/3_estrelas.gif"
+        else:  # 10x pull
+            gif_path = "imagens/5_estrelas.gif" if any(r == "imagens/firefly_pull.png" for r in resultado) else "imagens/3_estrelas.gif"
+        
+        gif = AnimatedGif(new_window, gif_path, loop=False, on_complete=lambda: self.show_result(new_window, resultado))
         gif.pack()
-        self.result_windows.append(gif_window)
 
+    def show_result(self, window, result):
+        if isinstance(result, str):  # Single pull
+            result_image_path = result
+            self.create_result_window(window, result_image_path)
+        else:  # 10x pull
+            if self.current_10x_index < len(result):
+                result_image_path = result[self.current_10x_index]
+                self.create_result_window(window, result_image_path)
+                self.current_10x_index += 1
+            else:
+                self.close_all_windows()
 
-    def show_result(self, gif_window, result_image_path):
-        # Close the GIF window
-        gif_window.destroy()
+    def create_result_window(self, window, image_path):
+        result_window = tk.Toplevel(window)
+        result_image = ImageTk.PhotoImage(Image.open(image_path))
+        label = tk.Label(result_window, image=result_image)
+        label.pack()
+        self.image_references.append(result_image)
         
-        # Create a new result window
-        result_window = tk.Toplevel(self.root)
-        self.result_windows.append(result_window)
-        
-        # Check if result_image_path is valid
-        if not result_image_path:
-            print("No image path provided.")
-            return
-    
-        # Initialize the fila with the result image path
-        self.fila = [result_image_path]
-        
-        # Set up the label and display the initial result image
-        self.result_image_label = tk.Label(result_window)
-        self.update_result_image(result_window)
-        
-        # Set up the 'Next' button
         frame = Frame(result_window, bootstyle="dark")
         frame.pack(side="bottom", fill="both")
-        next_button = Button(result_window, bootstyle="light", text="Next", command=lambda: self.update_result_image(result_window))
+        
+        next_button = Button(result_window, bootstyle="light", text="Next", command=lambda: self.proximo(result_window, label))
         next_button.pack(in_=frame, anchor='s', side='left', fill="both", expand=True)
-    
-    def update_result_image(self, result_window):
-        if self.fila:
-            image_path = self.fila.pop(0)
-            
-            try:
-                # Open and display the image
-                result_image = ImageTk.PhotoImage(Image.open(image_path))
-                self.result_image_label.config(image=result_image)
-                self.result_image_label.image = result_image  # Keep a reference to avoid garbage collection
-            except Exception as e:
-                print(f"Error loading image: {e}")
-                result_window.destroy()  # Close the window if there's an error
-        else:
-            result_window.destroy()  # No more results, close this window
 
+    def proximo(self, result_window, label):
+        if self.current_10x_index < len(self.fila):
+            result_image_path = self.fila[self.current_10x_index]
+            new_image = ImageTk.PhotoImage(Image.open(result_image_path))
+            self.image_references.append(new_image)
+            label.config(image=new_image)
+            self.current_10x_index += 1
+        else:
+            self.close_all_windows()
+
+    def close_all_windows(self):
+        for window in self.root.winfo_children():
+            if isinstance(window, tk.Toplevel):
+                window.destroy()
 
 def main():
     root = tk.Tk()
