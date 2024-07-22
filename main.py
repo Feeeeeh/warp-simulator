@@ -1,7 +1,8 @@
 import tkinter as tk
 from ttkbootstrap import *
 from PIL import ImageTk, Image 
-from gif_loader import AnimatedGif
+from gif_loader import AnimatedGif,AnimatedGif2
+import random
 
 root = tk.Tk()
 root.title("Warp Simulator")
@@ -16,6 +17,8 @@ style.configure('TNotebook.Tab', width=15)
 notebook = Notebook(style='custom.TNotebook')
 notebook.pack(expand=True, fill='both') 
 image_references = []
+
+firefly_pulls = ["imagens/firefly_pull.png","imagens/bailu_pull.png","imagens/himeko_pull.png"]
 
 def botoes(tab):
     frame = Frame(tab,bootstyle="dark")
@@ -53,8 +56,13 @@ def standard(): # Terceira aba
 def pull1x():
     print("1 pull")
     new_window = Toplevel(root)
-    gif = AnimatedGif(new_window, 'imagens/qiqi.gif')
-    gif.pack()
+    resultado = random.choice(firefly_pulls)
+    print(resultado)
+    if resultado == "imagens/firefly":
+        gif = AnimatedGif(new_window, "imagens/5_estrelas.gif")
+        gif.pack()
+    else:
+        gif = AnimatedGif2(new_window,"imagens/3_estrelas.gif")
 def pull10x():
     print("10 pulls")
     
