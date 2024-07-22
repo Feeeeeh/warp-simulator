@@ -74,10 +74,10 @@ class DatabaseManager:
             ''')
             cursor.execute('''
                 INSERT INTO gacha_arma (nome) VALUES ('qiqi'),
-                                                ('firefly1'),
-                                                ('firefly2'),
-                                                ('firefly3'),
-                                                ('firefly4'),
+                                                ('arma1'),
+                                                ('arma2'),
+                                                ('arma3'),
+                                                ('arma4'),
                                                 ('lixo1'),
                                                 ('lixo2'),
                                                 ('lixo3'),
@@ -92,10 +92,10 @@ class DatabaseManager:
             ''')
             cursor.execute('''
                 INSERT INTO gacha_base (nome) VALUES ('qiqi'),
-                                                ('firefly1'),
-                                                ('firefly2'),
-                                                ('firefly3'),
-                                                ('firefly4'),
+                                                ('base1'),
+                                                ('base2'),
+                                                ('base3'),
+                                                ('base4'),
                                                 ('lixo1'),
                                                 ('lixo2'),
                                                 ('lixo3'),
