@@ -1,6 +1,7 @@
 import mysql.connector
 import random
 
+
 # Função para realizar uma consulta aleatória em uma tabela específica
 def realizar_consulta_aleatoria(tabela, quantidade, cursor):
     try:
@@ -66,7 +67,7 @@ conexao = mysql.connector.connect(
     host="localhost",
     user="root",
     password="",
-    database="warps"
+    database="HSR"
 )
 
 # Verificar se a conexão foi bem sucedida
