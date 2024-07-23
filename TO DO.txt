@@ -1,0 +1,11 @@
+1 - funções diferentes pros botões de cada banner
+
+2 - passar a lista de personagens no banco de dados ao gacha em vez de uma lista feita na mão
+
+3 - login e senha de usuario em uma janela antes de iniciar o simular de warp
+
+4 - armazenar quantos personagens o usuario tem
+
+5 - armazenar quantas gemas o usuario gastou no total (160 por tiro)
+
+6 - mostrar tudo isso em uma janela lateral a direita dos banners
