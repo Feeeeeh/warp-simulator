@@ -4,6 +4,8 @@ from PIL import ImageTk, Image
 from gif_loader import AnimatedGif
 import random
 
+import mysql.connector
+
 class WarpSimulator:
     def __init__(self, root): 
         # cria a janela, seta um titulo e o tamanho dela

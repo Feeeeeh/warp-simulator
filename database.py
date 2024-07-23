@@ -67,7 +67,7 @@ conexao = mysql.connector.connect(
     host="localhost",
     user="root",
     password="",
-    database="HSR"
+    database="hsr"
 )
 
 # Verificar se a conexão foi bem sucedida
