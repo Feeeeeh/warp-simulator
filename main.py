@@ -21,7 +21,9 @@ class WarpSimulator:
         # Notebook para trocar entre abas
         self.notebook = Notebook(style='custom.TNotebook')
         self.notebook.pack(expand=True, fill='both')
-        self.image_references = [] # lista com a referencia das imagens, é necessario pra imagem se manter no loop principal, se não ela é criada e jogada fora
+        
+        # lista com a referencia das imagens, é necessario pra imagem se manter no loop principal, se não ela é criada e jogada fora
+        self.image_references = []
 
         # Itens do gacha
         self.firefly_pulls = ["imagens/firefly_pull.png", "imagens/bailu_pull.png", "imagens/himeko_pull.png","imagens/welt_pull.png","imagens/yanqing_pull.png","imagens/clara_pull.png","imagens/bronya_pull.png",
@@ -39,7 +41,9 @@ class WarpSimulator:
 
     def create_tab(self, title, banner_image_path, pull1x_command, pull10x_command): # tab da firefly e light cone por enquanto
         tab = Frame(self.notebook, width=200, height=200)
-        self.notebook.add(tab, text=title, padding=10)
+        img = ImageTk.PhotoImage(Image.open("imagens/firefly_icon.jpg"))
+        self.image_references.append(img)
+        self.notebook.add(tab, text=title, padding=10, image=img, compound="center")
         banner_image = ImageTk.PhotoImage(Image.open(banner_image_path))
         self.image_references.append(banner_image)
         tk.Label(tab, image=banner_image).pack()
