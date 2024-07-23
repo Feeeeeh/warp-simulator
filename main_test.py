@@ -95,7 +95,7 @@ class WarpSimulator:
 
     def show_gif_and_result(self, resultado): # mostra o gif e em seguida chama a função de mostrar o resultado
         new_window = tk.Toplevel(self.root)
-        gif_path = "imagens/qiqi.gif" if "imagens/qiqi_pull.png" in resultado else "imagens/5_estrelas.gif" if "imagens/firefly_pull.png" in resultado else "imagens/3_estrelas.gif"
+        gif_path = "qiqi" if "imagens/qiqi_pull.png" in resultado else "imagens/5_estrelas.gif" if "firefly1" or "firefly2" or "firefly3" or "firefly4" in resultado else "imagens/3_estrelas.gif"
   
         # chama uma classe que comprime e junta os frames do gif de forma com que ele apareça direito, sem pontos vazios
         gif = AnimatedGif(new_window, gif_path, loop=False, on_complete=lambda: self.show_result(new_window, resultado)) # não funciona sem lambda por algum motivo
