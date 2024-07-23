@@ -5,7 +5,7 @@ class DatabaseManager:
         self.conn = mysql.connector.connect(
             host="localhost",
             user="root",
-            password=""  # Coloque sua senha do MySQL aqui
+            password=""  
         )
 
     def create_db(self):
@@ -13,7 +13,7 @@ class DatabaseManager:
             conn_temp = mysql.connector.connect(
                 host="localhost",
                 user="root",
-                password=""  # Coloque sua senha do MySQL aqui
+                password=""  
             )
             cursor = conn_temp.cursor()
             cursor.execute('CREATE DATABASE IF NOT EXISTS HSR')
