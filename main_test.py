@@ -20,7 +20,8 @@ class WarpSimulator:
         self.notebook.pack(expand=True, fill='both')
         self.image_references = []
 
-        self.firefly_pulls = ["imagens/firefly_pull.png", "imagens/bailu_pull.png", "imagens/himeko_pull.png"]
+        self.firefly_pulls = ["imagens/firefly_pull.png", "imagens/bailu_pull.png", "imagens/himeko_pull.png","imagens/welt_pull.png","imagens/yanqing_pull.png","imagens/clara_pull.png","imagens/bronya_pull.png",
+                              "imagens/gepard_pull.png"]
 
         self.fila = []
         self.current_10x_index = 0  # To track current index for 10x pulls
@@ -96,7 +97,9 @@ class WarpSimulator:
     def create_result_window(self, window, image_path):
         result_window = tk.Toplevel(window)
         result_image = ImageTk.PhotoImage(Image.open(image_path))
-        label = tk.Label(result_window, image=result_image)
+        img_frame = Frame(result_window)
+        img_frame.pack(fill="both",expand=True)
+        label = tk.Label(img_frame, image=result_image)
         label.pack()
         self.image_references.append(result_image)
         
