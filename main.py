@@ -10,6 +10,8 @@ class WarpSimulator:
         self.root = root
         self.root.title("Warp Simulator") 
         self.root.geometry("800x500") 
+        root.resizable(False, False) # evita que o usuario mude o tamanho da janela 
+
 
         # Estiliação da janela no estilo darkly na biblioteca ttkbootstrap
         self.style = Style(theme='darkly')
@@ -76,6 +78,7 @@ class WarpSimulator:
 
     def show_gif_and_result(self, resultado): # mostra o gif e em seguida chama a função de mostrar o resultado
         new_window = tk.Toplevel(self.root)
+        new_window.resizable(False, False) # evita que o usuario mude o tamanho da janela
         gif_path = "imagens/qiqi.gif" if "imagens/qiqi_pull.png" in resultado else "imagens/5_estrelas.gif" if "imagens/firefly_pull.png" in resultado else "imagens/3_estrelas.gif"
   
         # chama uma classe que comprime e junta os frames do gif de forma com que ele apareça direito, sem pontos vazios
@@ -99,8 +102,9 @@ class WarpSimulator:
         result_image = ImageTk.PhotoImage(Image.open(image_path)) # carrega a imagem do resultado
         
         # tentando limitar a imagem a um frame pra ela parar de mudar de tamanho, não funcionou 
-        img_frame = Frame(result_window)
+        img_frame = Frame(result_window, width=600, height=300)
         img_frame.pack(fill="both",expand=True)
+        img_frame.propagate(False) # evita que a frame aumente de tamanho baseado nas imagens
         
     
         label = tk.Label(img_frame, image=result_image) # joga a imagem na tela
