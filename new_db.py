@@ -47,6 +47,20 @@ class DatabaseManager:
                     nome VARCHAR(100) NOT NULL
                 )
             ''')
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS save_char (
+                    nome VARCHAR(100),
+                    quantidade SMALLINT NOT NULL
+                )
+            ''')
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS login (
+                     id INT AUTO_INCREMENT PRIMARY KEY,
+                        nome VARCHAR(100),
+                        senha VARCHAR(100) NOT NULL
+
+                )
+            ''')           
             self.conn.commit()
         except mysql.connector.Error as err:
             print(f"Error: {err}")
