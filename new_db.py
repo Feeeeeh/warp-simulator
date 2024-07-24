@@ -34,30 +34,36 @@ class DatabaseManager:
             cursor = self.conn.cursor()
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS gacha_ff (
+                    id INT PRIMARY KEY AUTO_INCREMENT,
                     nome VARCHAR(100) NOT NULL
                 )
             ''')
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS gacha_arma (
+                    id INT PRIMARY KEY AUTO_INCREMENT,
                     nome VARCHAR(100) NOT NULL
                 )
             ''')
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS gacha_base (
+                    id INT PRIMARY KEY AUTO_INCREMENT,
                     nome VARCHAR(100) NOT NULL
                 )
             ''')
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS save_char (
+                    id INT PRIMARY KEY AUTO_INCREMENT,
                     nome VARCHAR(100),
-                    quantidade SMALLINT NOT NULL
+                    quantidade SMALLINT NOT NULL,
+                    jade SMALLINT NOT NULL      
                 )
             ''')
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS login (
-                     id INT AUTO_INCREMENT PRIMARY KEY,
-                        nome VARCHAR(100),
-                        senha VARCHAR(100) NOT NULL
+                     id INT PRIMARY KEY AUTO_INCREMENT,
+                     nome VARCHAR(100),
+                     senha VARCHAR(100)
+
 
                 )
             ''')           
@@ -67,7 +73,12 @@ class DatabaseManager:
 
     def insert_data(self):
         try:
-            cursor = self.conn.cursor()
+            cursor = self.conn.cursor()  
+            cursor.execute('''
+                INSERT INTO login (nome,senha) VALUES ('debug','000')                                        
+            ''')
+
+
             cursor.execute('''
                 INSERT INTO gacha_ff (nome) VALUES ('qiqi'),
                                               ('firefly1'),
