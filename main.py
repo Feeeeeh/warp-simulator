@@ -26,8 +26,9 @@ class WarpSimulator:
         self.image_references = []
 
         # Itens do gacha
-        self.firefly_pulls = ["imagens/firefly_pull.png", "imagens/bailu_pull.png", "imagens/himeko_pull.png","imagens/welt_pull.png","imagens/yanqing_pull.png","imagens/clara_pull.png","imagens/bronya_pull.png",
-                              "imagens/gepard_pull.png","imagens/qiqi_pull.png"]
+        self.firefly_pulls = ["imagens/firefly_pull.png"]
+        self.cone_pulls = ["imagens/firefly_cone.png"]
+        self.standard_pulls = ["imagens/welt_pull.png"]
 
         self.fila = [] #lista do que você tirou no gacha
         self.current_10x_index = 0  # index que irá aumentar de 1 em 1 para pegar os itens da lista um por vez
@@ -35,9 +36,9 @@ class WarpSimulator:
         self.create_tabs()
 
     def create_tabs(self): #cria as abas do notebook
-        self.create_tab("Firefly", "imagens/firefly_banner.png", self.pull1x, self.pull10x)
-        self.create_tab("Light Cone", "imagens/cone_banner.png", self.pull1x, self.pull10x)
-        self.create_standard_tab("Standard", "imagens/Stellar_Warp.png", self.pull1x, self.pull10x)
+        self.create_tab("Firefly", "imagens/firefly_banner.png", lambda: self.pull1x(self.firefly_pulls), lambda: self.pull10x(self.firefly_pulls)) # firefly banner
+        self.create_tab("Light Cone", "imagens/cone_banner.png", lambda: self.pull1x(self.cone_pulls), lambda: self.pull10x(self.cone_pulls)) # light cone banner
+        self.create_standard_tab("Standard", "imagens/Stellar_Warp.png", lambda: self.pull1x(self.standard_pulls), lambda: self.pull10x(self.standard_pulls)) # standard banner
 
     def create_tab(self, title, banner_image_path, pull1x_command, pull10x_command): # tab da firefly e light cone por enquanto
         tab = Frame(self.notebook, width=200, height=200)
@@ -67,15 +68,15 @@ class WarpSimulator:
         button1.pack(in_=frame, anchor='s', side='left', fill="both", expand=True)
         button10.pack(in_=frame, anchor='s', side='right', fill="both", expand=True)
 
-    def pull1x(self): # 1 tentativa de gacha
+    def pull1x(self,x): # 1 tentativa de gacha
         print("1 pull")
-        resultado = random.choice(self.firefly_pulls)
+        resultado = random.choice(x)
         print(resultado)
         self.show_gif_and_result(resultado)
 
-    def pull10x(self): # 10 tentativas de gacha
+    def pull10x(self,x): # 10 tentativas de gacha
         print("10 pulls")
-        self.fila = [random.choice(self.firefly_pulls) for _ in range(10)]
+        self.fila = [random.choice(x) for _ in range(10)]
         print(self.fila)
         self.current_10x_index = 0  # reseta o index caso não seja a primeira vez que você está usando o comando
         self.show_gif_and_result(self.fila)
