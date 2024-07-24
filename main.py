@@ -2,6 +2,7 @@ import tkinter as tk
 from ttkbootstrap import Style, Frame, Button, Notebook
 from PIL import ImageTk, Image
 from gif_loader import AnimatedGif
+import mysql.connector
 import random
 
 class WarpSimulator:
