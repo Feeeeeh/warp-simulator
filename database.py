@@ -1,6 +1,5 @@
 import mysql.connector
-from login import validate_user
-validate_user()
+
 def mapear_item(nome):
     if nome in ['firefly1', 'firefly2', 'firefly3', 'firefly4']:
         return 'firefly'

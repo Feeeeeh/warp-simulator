@@ -5,7 +5,6 @@ from gif_loader import AnimatedGif
 import mysql.connector
 import random
 import pygame
-from database import mapear_item, salvar_resultados, realizar_consulta_aleatoria, escolher_operacao
 
 class WarpSimulator:
     def __init__(self, root):
@@ -22,7 +21,10 @@ class WarpSimulator:
         self.notebook.pack(expand=True, fill='both')
         
         self.image_references = []
-                
+        
+        self.standard_possible_results = ["imagens/firefly_pull.png","imagens/bailu_pull.png","imagens/bronya_pull.png","imagens/clara_pull.png","imagens/gepard_pull.png",
+                                     "imagens/himeko_pull.png","imagens/welt_pull.png","imagens/yanqing_pull.png"]
+        
         self.db_conn = self.connect_to_database()
         self.firefly_pulls = self.get_data_from_db("gacha_ff")
         self.cone_pulls = self.get_data_from_db("gacha_arma")
@@ -91,6 +93,39 @@ class WarpSimulator:
         button1.pack(in_=frame, anchor='s', side='left', fill="both", expand=True)
         button10.pack(in_=frame, anchor='s', side='right', fill="both", expand=True)
 
+    def save_result_to_db(self, result):
+        user_id = 1  # Replace with actual user ID
+        quantidade = 1
+        jade = 0
+        if "firefly" in result:
+            jade = 10  # Example value, adjust as needed
+        try:
+            cursor = self.db_conn.cursor()
+            cursor.execute('''
+                INSERT INTO save_char (user_id, nome, quantidade, jade)
+                VALUES (%s, %s, %s, %s)
+            ''', (user_id, result, quantidade, jade))
+            self.db_conn.commit()
+        except mysql.connector.Error as err:
+            print(f"Error: {err}")
+
+    def save_results_to_db(self, results):
+        user_id = 1  # Replace with actual user ID
+        jade = 0
+        for result in results:
+            if "firefly" in result:
+                jade = 10  # Example value, adjust as needed
+            try:
+                cursor = self.db_conn.cursor()
+                cursor.execute('''
+                    INSERT INTO save_char (user_id, nome, quantidade, jade)
+                    VALUES (%s, %s, %s, %s)
+                ''', (user_id, result, 1, jade))
+                self.db_conn.commit()
+            except mysql.connector.Error as err:
+                print(f"Error: {err}")
+
+
     def pull1x(self, x):
         print("1 pull")
         resultado = random.choice(x)
@@ -103,19 +138,21 @@ class WarpSimulator:
         else:
             resultado = "imagens/lixo_lc.png"
         print(resultado)
+        self.save_result_to_db(resultado)  # Save result to database
         self.show_gif_and_result(resultado)
-
 
     def pull10x(self, x):
         print("10 pulls")
         self.fila = [random.choice(x) for _ in range(10)]
         self.fila = [random.choice(self.standard_possible_results) if item in ['base1', 'base2', 'base3', 'base4']
                      else "imagens/firefly_cone.png" if item in ['arma1', 'arma2', 'arma3', 'arma4']
-                     else "imagens/firefly_pull.png" if item in ["firefly1","firefly2","firefly3","firefly4"] 
+                     else "imagens/firefly_pull.png" if item in ["firefly1","firefly2","firefly3","firefly4"]
                      else "imagens/lixo_lc.png" for item in self.fila]
         print(self.fila)
+        self.save_results_to_db(self.fila)  # Save results to database
         self.current_10x_index = 0
         self.show_gif_and_result(self.fila)
+
 
 
     def show_gif_and_result(self, resultado):
