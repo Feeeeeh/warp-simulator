@@ -1,5 +1,35 @@
 import mysql.connector
-import random
+
+def login():
+    # Solicita o nome de usuário e a senha
+    username = input("Digite seu nome de usuário: ")
+    password = input("Digite sua senha: ")
+
+    # Conecta ao banco de dados
+    conn = mysql.connector.connect(
+        host="localhost",
+        user="root",
+        password="",
+        database="HSR"
+    )
+    cursor = conn.cursor()
+
+    # Verifica se o usuário e a senha estão corretos
+    cursor.execute('SELECT * FROM login WHERE nome = %s AND senha = %s', (username, password))
+    user = cursor.fetchone()
+
+    # Fecha a conexão com o banco de dados
+    conn.close()
+
+    if user:
+        print("Login bem-sucedido!")
+        return True
+    else:
+        print("Nome de usuário ou senha incorretos. Tente novamente.")
+        return False
+
+# Chama a função de login
+login()
 
 
 # Função para realizar uma consulta aleatória em uma tabela específica
