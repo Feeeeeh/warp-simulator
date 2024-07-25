@@ -1,33 +1,6 @@
 import mysql.connector
-
-def login():
-    # Solicita o nome de usuário e a senha
-    username = input("Digite seu nome de usuário: ")
-    password = input("Digite sua senha: ")
-
-    # Conecta ao banco de dados
-    conn = mysql.connector.connect(
-        host="localhost",
-        user="root",
-        password="",
-        database="HSR"
-    )
-    cursor = conn.cursor()
-
-    # Verifica se o usuário e a senha estão corretos
-    cursor.execute('SELECT id FROM login WHERE nome = %s AND senha = %s', (username, password))
-    user = cursor.fetchone()
-
-    # Fecha a conexão com o banco de dados
-    conn.close()
-
-    if user:
-        print("Login bem-sucedido!")
-        return user[0]  # Retorna o ID do usuário
-    else:
-        print("Nome de usuário ou senha incorretos. Tente novamente.")
-        return None
-
+from login import validate_user
+validate_user()
 def mapear_item(nome):
     if nome in ['firefly1', 'firefly2', 'firefly3', 'firefly4']:
         return 'firefly'
@@ -158,7 +131,7 @@ if conexao.is_connected():
     cursor = conexao.cursor()
 
     # Chama a função de login
-    usuario_id = login()
+    usuario_id = validate_user()
 
     if usuario_id:
         # Chama a função para escolher a operação

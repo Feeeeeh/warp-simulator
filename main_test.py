@@ -22,10 +22,7 @@ class WarpSimulator:
         self.notebook.pack(expand=True, fill='both')
         
         self.image_references = []
-        
-        self.standard_possible_results = ["imagens/firefly_pull.png","imagens/bailu_pull.png","imagens/bronya_pull.png","imagens/clara_pull.png","imagens/gepard_pull.png",
-                                     "imagens/himeko_pull.png","imagens/welt_pull.png","imagens/yanqing_pull.png"]
-        
+                
         self.db_conn = self.connect_to_database()
         self.firefly_pulls = self.get_data_from_db("gacha_ff")
         self.cone_pulls = self.get_data_from_db("gacha_arma")

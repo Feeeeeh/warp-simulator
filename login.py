@@ -4,6 +4,7 @@ import mysql.connector
 from PIL import Image, ImageTk
 from ttkbootstrap import Style, Frame, Button
 import subprocess  # To start the main file
+import mysql.connector
 
 # Database connection details
 DB_HOST = "localhost"
@@ -16,21 +17,54 @@ def handle_login():
     password = entry_password.get()
     
     if validate_user(username, password):
-        root.destroy()
-        subprocess.run(["python", "main.py"])  # Replace with the path to your main file
+        root.withdraw()  # Hide the login window
+        if subprocess.call(["python", "main.py"]) == 0:
+            root.deiconify()  # Show the login window again if the main app closes
+        else:
+            messagebox.showerror("Error", "An error occurred while running the main application.")
+            root.deiconify()  # Show the login window again if there was an error
     else:
-        error_label.config(text="Invalid username or password.")
-
+        messagebox.showerror("Login Error", "Invalid username or password.")
+    
+    # Call clear_entries() only if the widgets are valid
+    if entry_username.winfo_exists() and entry_password.winfo_exists():
+        clear_entries()  # Clear the entry fields after attempting login
+     
+        
 def handle_register():
     username = entry_username.get()
     password = entry_password.get()
     
     if add_user(username, password):
-        messagebox.showinfo("Register", "Registration successful!")
+        messagebox.showinfo("Registration Successful", "Registration successful!")
+        show_login()  # Show the login form after successful registration
     else:
-        error_label.config(text="Registration failed. User may already exist.")
+        messagebox.showerror("Registration Error", "Registration failed. User may already exist.")
+    
+    # Call clear_entries() only if the widgets are valid
+    if entry_username.winfo_exists() and entry_password.winfo_exists():
+        clear_entries()  # Clear the entry fields after attempting registration
 
 def validate_user(username, password):
+    conn = mysql.connector.connect(
+        host=DB_HOST,
+        user=DB_USER,
+        password=DB_PASSWORD,
+        database=DB_NAME
+    )
+    cursor = conn.cursor()
+    
+    # Check if the username already exists
+    cursor.execute("SELECT * FROM login WHERE nome = %s", (username,))
+    user = cursor.fetchone()
+
+    # Fecha a conexão com o banco de dados
+    conn.close()
+    id_usuario = user[0]
+    if user:
+        print(f"ID: {id_usuario}")
+        return id_usuario # Retorna o ID do usuário
+    
     try:
         conn = mysql.connector.connect(
             host=DB_HOST,
@@ -40,12 +74,14 @@ def validate_user(username, password):
         )
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM login WHERE nome = %s AND senha = %s", (username, password))
+        cursor.execute("SELECT * FROM login WHERE id = %s", ())
         result = cursor.fetchone()
         conn.close()
         return result is not None
     except mysql.connector.Error as err:
         messagebox.showerror("Database Error", f"Error: {err}")
         return False
+    
 
 def add_user(username, password):
     try:
@@ -56,6 +92,14 @@ def add_user(username, password):
             database=DB_NAME
         )
         cursor = conn.cursor()
+        
+        # Check if the username already exists
+        cursor.execute("SELECT * FROM login WHERE nome = %s", (username,))
+        if cursor.fetchone():
+            conn.close()
+            return False  # User already exists
+        
+        # Insert the new user
         cursor.execute("INSERT INTO login (nome, senha) VALUES (%s, %s)", (username, password))
         conn.commit()
         conn.close()
@@ -72,7 +116,6 @@ def show_login():
     entry_password.grid(row=1, column=5, padx=5, pady=5, sticky='w')
     button_login.grid(row=1, column=8, padx=20, pady=5, sticky='e')
     back_button.grid(row=1, column=10, padx=20, pady=5, sticky='e')
-    error_label.grid(row=4, columnspan=2, pady=5)
 
 def show_register():
     clear_frame()
@@ -82,8 +125,7 @@ def show_register():
     entry_password.grid(row=1, column=5, padx=5, pady=5, sticky='w')
     button_register.grid(row=1, column=8, padx=20, pady=5, sticky='e')
     back_button.grid(row=1, column=10, padx=20, pady=5, sticky='e')
-    error_label.grid(row=4, columnspan=2, pady=5)
-    
+
 def go_back():
     clear_frame()
     login()
@@ -92,18 +134,23 @@ def clear_frame():
     for widget in frame_login.winfo_children():
         widget.grid_remove()
 
+def clear_entries():
+    if entry_username.winfo_exists() and entry_password.winfo_exists():
+        entry_username.delete(0, tk.END)
+        entry_password.delete(0, tk.END)
+
 def on_return_key(event):
     handle_login()
 
 # Tkinter setup
 root = tk.Tk()
 root.title("Login")
-root.geometry("600x300")
+root.geometry("600x400")
 style = Style(theme='darkly')
 
 # Background image
 banner_image = ImageTk.PhotoImage(Image.open("imagens/wallpaper.png"))
-tk.Label(root, image=banner_image).place(relx=0, rely=0, relwidth=1, relheight=0.8)
+tk.Label(root, image=banner_image).place(relx=0, rely=0, relwidth=1, relheight=0.9)
 
 # Frame for login form
 frame_login = Frame(root)
@@ -131,10 +178,7 @@ button_login = Button(frame_login, text="Login", command=handle_login, bootstyle
 button_register = Button(frame_login, text="Register", command=handle_register, bootstyle="info")
 
 # Back button
-back_button = Button(frame_login, text="Back", command=go_back, bootstyle ="danger")
-
-# Error label
-error_label = tk.Label(frame_login, text="", fg="red", bg="white")
+back_button = Button(frame_login, text="Back", command=go_back, bootstyle="danger")
 
 # Bind the Return key to the login function
 root.bind('<Return>', on_return_key)
