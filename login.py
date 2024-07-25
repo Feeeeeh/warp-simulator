@@ -98,7 +98,7 @@ def on_return_key(event):
 # Tkinter setup
 root = tk.Tk()
 root.title("Login")
-root.geometry("700x400")
+root.geometry("600x300")
 style = Style(theme='darkly')
 
 # Background image
