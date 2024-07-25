@@ -15,7 +15,7 @@ def login():
     cursor = conn.cursor()
 
     # Verifica se o usuário e a senha estão corretos
-    cursor.execute('SELECT * FROM login WHERE nome = %s AND senha = %s', (username, password))
+    cursor.execute('SELECT id FROM login WHERE nome = %s AND senha = %s', (username, password))
     user = cursor.fetchone()
 
     # Fecha a conexão com o banco de dados
@@ -23,20 +23,27 @@ def login():
 
     if user:
         print("Login bem-sucedido!")
-        return True
+        return user[0]  # Retorna o ID do usuário
     else:
         print("Nome de usuário ou senha incorretos. Tente novamente.")
-        return False
+        return None
 
-# Chama a função de login
-login()
+def mapear_item(nome):
+    if nome in ['firefly1', 'firefly2', 'firefly3', 'firefly4']:
+        return 'firefly'
+    elif nome in ['arma1', 'arma2', 'arma3', 'arma4']:
+        return 'arma'
+    elif nome in ['base1', 'base2', 'base3', 'base4']:
+        return 'base'
+    elif nome in ['lixo1', 'lixo2', 'lixo3', 'lixo4', 'lixo5', 'lixo6', 'lixo7', 'lixo8', 'lixo9', 'lixo10', 'lixo11']:
+        return 'lixo'
+    else:
+        return nome
 
-
-# Função para realizar uma consulta aleatória em uma tabela específica
 def realizar_consulta_aleatoria(tabela, quantidade, cursor):
     try:
         # Constrói a consulta SQL com base na tabela e na quantidade especificada
-        query = f"SELECT * FROM {tabela} ORDER BY RAND() LIMIT {quantidade}"
+        query = f"SELECT nome FROM {tabela} ORDER BY RAND() LIMIT {quantidade}"
 
         # Executa a consulta
         cursor.execute(query)
@@ -44,15 +51,52 @@ def realizar_consulta_aleatoria(tabela, quantidade, cursor):
         # Obtém todos os resultados da consulta
         resultados = cursor.fetchall()
 
-        # Imprime os resultados
-        for linha in resultados:
-            print(linha)
+        # Mapeia os nomes dos itens para as categorias desejadas
+        resultados_mapeados = [(mapear_item(resultado[0]),) for resultado in resultados]
+
+        # Retorna os resultados mapeados
+        return resultados_mapeados
 
     except mysql.connector.Error as e:
         print(f"Erro ao executar a consulta SQL: {e}")
+        return []
 
-# Função principal para escolher a operação
-def escolher_operacao(conexao, cursor):
+def salvar_resultados(usuario_id, resultados, cursor, conexao):
+    try:
+        for resultado in resultados:
+            nome = resultado[0]
+
+            # Verifica se o item já existe na tabela save_char para o usuário
+            cursor.execute('''
+                SELECT quantidade FROM save_char WHERE user_id = %s AND nome = %s
+            ''', (usuario_id, nome))
+            item = cursor.fetchone()
+
+            if item:
+                # Atualiza a quantidade existente
+                nova_quantidade = item[0] + 1
+                cursor.execute('''
+                    UPDATE save_char
+                    SET quantidade = %s
+                    WHERE user_id = %s AND nome = %s
+                ''', (nova_quantidade, usuario_id, nome))
+            else:
+                # Insere um novo item
+                cursor.execute('''
+                    INSERT INTO save_char (user_id, nome, quantidade, jade)
+                    VALUES (%s, %s, %s, %s)
+                ''', (usuario_id, nome, 1, 10))  # Ajuste conforme necessário
+        conexao.commit()
+
+        # Exibe os resultados no terminal
+        print("Resultados salvos:")
+        for resultado in resultados:
+            print(resultado[0])
+
+    except mysql.connector.Error as e:
+        print(f"Erro ao salvar os resultados: {e}")
+
+def escolher_operacao(conexao, cursor, usuario_id):
     try:
         while True:
             # Mostra opções para o usuário
@@ -69,17 +113,23 @@ def escolher_operacao(conexao, cursor):
             escolha = int(input("Escolha o número correspondente à operação que deseja executar: "))
 
             if escolha == 1:
-                realizar_consulta_aleatoria("gacha_ff", 1, cursor)
+                resultados = realizar_consulta_aleatoria("gacha_ff", 1, cursor)
+                salvar_resultados(usuario_id, resultados, cursor, conexao)
             elif escolha == 2:
-                realizar_consulta_aleatoria("gacha_ff", 10, cursor)
+                resultados = realizar_consulta_aleatoria("gacha_ff", 10, cursor)
+                salvar_resultados(usuario_id, resultados, cursor, conexao)
             elif escolha == 3:
-                realizar_consulta_aleatoria("gacha_arma", 1, cursor)
+                resultados = realizar_consulta_aleatoria("gacha_arma", 1, cursor)
+                salvar_resultados(usuario_id, resultados, cursor, conexao)
             elif escolha == 4:
-                realizar_consulta_aleatoria("gacha_arma", 10, cursor)
+                resultados = realizar_consulta_aleatoria("gacha_arma", 10, cursor)
+                salvar_resultados(usuario_id, resultados, cursor, conexao)
             elif escolha == 5:
-                realizar_consulta_aleatoria("gacha_base", 1, cursor)
+                resultados = realizar_consulta_aleatoria("gacha_base", 1, cursor)
+                salvar_resultados(usuario_id, resultados, cursor, conexao)
             elif escolha == 6:
-                realizar_consulta_aleatoria("gacha_base", 10, cursor)
+                resultados = realizar_consulta_aleatoria("gacha_base", 10, cursor)
+                salvar_resultados(usuario_id, resultados, cursor, conexao)
             elif escolha == 7:
                 print("Encerrando o programa...")
                 break
@@ -107,8 +157,12 @@ if conexao.is_connected():
     # Cria um cursor para executar operações SQL
     cursor = conexao.cursor()
 
-    # Chama a função para escolher a operação
-    escolher_operacao(conexao, cursor)
+    # Chama a função de login
+    usuario_id = login()
+
+    if usuario_id:
+        # Chama a função para escolher a operação
+        escolher_operacao(conexao, cursor, usuario_id)
 
     # Fecha o cursor e a conexão
     cursor.close()
