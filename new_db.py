@@ -40,16 +40,16 @@ class DatabaseManager:
             ''')
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS login (
-                     id INT PRIMARY KEY AUTO_INCREMENT,
-                     nome VARCHAR(100),
-                     senha VARCHAR(100)
+                    id INT PRIMARY KEY AUTO_INCREMENT,
+                    nome VARCHAR(100),
+                    senha VARCHAR(100)
                 )
             ''')
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS save_char (
                     id INT PRIMARY KEY AUTO_INCREMENT,
                     user_id INT,
-                    character_id INT,
+                    nome VARCHAR(100),
                     quantidade SMALLINT NOT NULL,
                     jade SMALLINT NOT NULL,
                     FOREIGN KEY (user_id) REFERENCES login(id)
