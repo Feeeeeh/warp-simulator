@@ -4,7 +4,6 @@ import mysql.connector
 from PIL import Image, ImageTk
 from ttkbootstrap import Style, Frame, Button
 import subprocess  # To start the main file
-import mysql.connector
 
 # Database connection details
 DB_HOST = "localhost"
@@ -15,17 +14,19 @@ DB_NAME = "HSR"
 def handle_login():
     username = entry_username.get()
     password = entry_password.get()
-    
-    if validate_user(username, password):
+
+    user_id = validate_user(username, password)  # Get user ID
+
+    if user_id:
         root.withdraw()  # Hide the login window
-        if subprocess.call(["python", "main.py"]) == 0:
+        if subprocess.call(["python", "app_teste.py", str(user_id)]):
             root.deiconify()  # Show the login window again if the main app closes
         else:
             messagebox.showerror("Error", "An error occurred while running the main application.")
             root.deiconify()  # Show the login window again if there was an error
     else:
         messagebox.showerror("Login Error", "Invalid username or password.")
-    
+
     # Call clear_entries() only if the widgets are valid
     if entry_username.winfo_exists() and entry_password.winfo_exists():
         clear_entries()  # Clear the entry fields after attempting login
@@ -46,25 +47,6 @@ def handle_register():
         clear_entries()  # Clear the entry fields after attempting registration
 
 def validate_user(username, password):
-    conn = mysql.connector.connect(
-        host=DB_HOST,
-        user=DB_USER,
-        password=DB_PASSWORD,
-        database=DB_NAME
-    )
-    cursor = conn.cursor()
-    
-    # Check if the username already exists
-    cursor.execute("SELECT * FROM login WHERE nome = %s", (username,))
-    user = cursor.fetchone()
-
-    # Fecha a conexão com o banco de dados
-    conn.close()
-    id_usuario = user[0]
-    if user:
-        print(f"ID: {id_usuario}")
-        return id_usuario # Retorna o ID do usuário
-    
     try:
         conn = mysql.connector.connect(
             host=DB_HOST,
@@ -73,15 +55,13 @@ def validate_user(username, password):
             database=DB_NAME
         )
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM login WHERE nome = %s AND senha = %s", (username, password))
-        cursor.execute("SELECT * FROM login WHERE id = %s", ())
-        result = cursor.fetchone()
+        cursor.execute("SELECT id FROM login WHERE nome = %s AND senha = %s", (username, password))
+        user = cursor.fetchone()
         conn.close()
-        return result is not None
+        return user[0] if user else None
     except mysql.connector.Error as err:
         messagebox.showerror("Database Error", f"Error: {err}")
-        return False
-    
+        return None
 
 def add_user(username, password):
     try:
@@ -182,5 +162,4 @@ back_button = Button(frame_login, text="Back", command=go_back, bootstyle="dange
 
 # Bind the Return key to the login function
 root.bind('<Return>', on_return_key)
-
 root.mainloop()

@@ -3,14 +3,14 @@ from ttkbootstrap import Style, Frame, Button, Notebook
 from PIL import ImageTk, Image
 from gif_loader import AnimatedGif
 import mysql.connector
-import random
-import pygame
+import random, pygame, sys
 
 class WarpSimulator:
-    def __init__(self, root):
+    def __init__(self, root, user_id):
         self.root = root
+        self.user_id = user_id  # Store the user ID
         self.root.title("Warp Simulator")
-        self.root.geometry("800x500")
+        self.root.geometry("1000x500")
         root.resizable(False, False)
         
         self.style = Style(theme='darkly')
@@ -22,8 +22,11 @@ class WarpSimulator:
         
         self.image_references = []
         
-        self.standard_possible_results = ["imagens/firefly_pull.png","imagens/bailu_pull.png","imagens/bronya_pull.png","imagens/clara_pull.png","imagens/gepard_pull.png",
-                                     "imagens/himeko_pull.png","imagens/welt_pull.png","imagens/yanqing_pull.png"]
+        self.standard_possible_results = [
+            "imagens/firefly_pull.png", "imagens/bailu_pull.png", "imagens/bronya_pull.png", 
+            "imagens/clara_pull.png", "imagens/gepard_pull.png", "imagens/himeko_pull.png", 
+            "imagens/welt_pull.png", "imagens/yanqing_pull.png"
+        ]
         
         self.db_conn = self.connect_to_database()
         self.firefly_pulls = self.get_data_from_db("gacha_ff")
@@ -92,35 +95,47 @@ class WarpSimulator:
         button10 = Button(tab, bootstyle="dark", text="Warp 10x", command=pull10x_command)
         button1.pack(in_=frame, anchor='s', side='left', fill="both", expand=True)
         button10.pack(in_=frame, anchor='s', side='right', fill="both", expand=True)
+        
+    def mapear_item(self, nome):
+        if "firefly" in nome:
+            return "Firefly"
+        elif "arma" in nome:
+            return "Cone"
+        elif "base" in nome:
+            return "Standard"
+        elif "lixo" in nome:
+            return "Lixo"
+        else:
+            return "Unknown"
 
-    def save_result_to_db(self, result):
-        user_id = 1  # Replace with actual user ID
-        quantidade = 1
-        jade = 0
-        if "firefly" in result:
-            jade = 10  # Example value, adjust as needed
-        try:
-            cursor = self.db_conn.cursor()
-            cursor.execute('''
-                INSERT INTO save_char (user_id, nome, quantidade, jade)
-                VALUES (%s, %s, %s, %s)
-            ''', (user_id, result, quantidade, jade))
-            self.db_conn.commit()
-        except mysql.connector.Error as err:
-            print(f"Error: {err}")
 
-    def save_results_to_db(self, results):
-        user_id = 1  # Replace with actual user ID
-        jade = 0
+    def save_result_to_db(self, results):
+        # Ensure results is always a list for uniform processing
+        if not isinstance(results, list):
+            results = [results]
+        
         for result in results:
-            if "firefly" in result:
-                jade = 10  # Example value, adjust as needed
+            result_mapped = self.mapear_item(result)
             try:
                 cursor = self.db_conn.cursor()
                 cursor.execute('''
-                    INSERT INTO save_char (user_id, nome, quantidade, jade)
-                    VALUES (%s, %s, %s, %s)
-                ''', (user_id, result, 1, jade))
+                    SELECT quantidade FROM save_char WHERE user_id = %s AND nome = %s
+                ''', (self.user_id, result_mapped))
+                row = cursor.fetchone()
+    
+                if row:
+                    new_quantity = row[0] + 1
+                    new_jade = 160 * new_quantity
+                    cursor.execute('''
+                        UPDATE save_char SET quantidade = %s, jade = %s
+                        WHERE user_id = %s AND nome = %s
+                    ''', (new_quantity, new_jade, self.user_id, result_mapped))
+                else:
+                    cursor.execute('''
+                        INSERT INTO save_char (user_id, nome, quantidade, jade)
+                        VALUES (%s, %s, %s, %s)
+                    ''', (self.user_id, result_mapped, 1, 160))
+                
                 self.db_conn.commit()
             except mysql.connector.Error as err:
                 print(f"Error: {err}")
@@ -131,7 +146,7 @@ class WarpSimulator:
         resultado = random.choice(x)
         if resultado in ['base1', 'base2', 'base3', 'base4']:
             resultado = random.choice(self.standard_possible_results)
-        elif resultado in ["firefly1","firefly2","firefly3","firefly4"]:
+        elif resultado in ["firefly1", "firefly2", "firefly3", "firefly4"]:
             resultado = "imagens/firefly_pull.png"
         elif resultado in ['arma1', 'arma2', 'arma3', 'arma4']:
             resultado = "imagens/firefly_cone.png"
@@ -149,16 +164,15 @@ class WarpSimulator:
                      else "imagens/firefly_pull.png" if item in ["firefly1","firefly2","firefly3","firefly4"]
                      else "imagens/lixo_lc.png" for item in self.fila]
         print(self.fila)
-        self.save_results_to_db(self.fila)  # Save results to database
+        self.save_result_to_db(self.fila)  # Save results to database
         self.current_10x_index = 0
         self.show_gif_and_result(self.fila)
-
 
 
     def show_gif_and_result(self, resultado):
         new_window = tk.Toplevel(self.root)
         new_window.resizable(False, False)
-        gif_path = "imagens/qiqi.gif" if "qiqi" in resultado else "imagens/5_estrelas.gif" if "firefly" in resultado else "imagens/3_estrelas.gif"
+        gif_path = "imagens/qiqi.gif" if "qiqi" in resultado else "imagens/5_estrelas.gif" if "imagens/firefly_pull.png" in resultado else "imagens/3_estrelas.gif"
   
         gif = AnimatedGif(new_window, gif_path, loop=False, on_complete=lambda: self.show_result(new_window, resultado))
         gif.pack()
@@ -221,10 +235,12 @@ class WarpSimulator:
         pygame.mixer.music.load(audio_path)
         pygame.mixer.music.play()
 
-def main():
-    root = tk.Tk()
-    app = WarpSimulator(root)
-    root.mainloop()
-
 if __name__ == "__main__":
-    main()
+    if len(sys.argv) != 2:
+        print("Usage: python main_test.py <user_id>")
+        sys.exit(1)
+
+    user_id = sys.argv[1]
+    root = tk.Tk()
+    app = WarpSimulator(root, user_id)
+    root.mainloop()

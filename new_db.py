@@ -49,10 +49,11 @@ class DatabaseManager:
                 CREATE TABLE IF NOT EXISTS save_char (
                     id INT PRIMARY KEY AUTO_INCREMENT,
                     user_id INT,
-                    nome VARCHAR(100),
-                    quantidade SMALLINT NOT NULL,
-                    jade SMALLINT NOT NULL,
-                    FOREIGN KEY (user_id) REFERENCES login(id)
+                    nome VARCHAR(255),
+                    quantidade INT,
+                    jade INT,
+                    FOREIGN KEY (user_id) REFERENCES login(id),
+                    UNIQUE(user_id, nome) -- faz com que cada usuario tenha entradas unicas
                 )
             ''')
             self.conn.commit()
@@ -96,3 +97,4 @@ if __name__ == "__main__":
     db_manager = DatabaseManager()
     db_manager.create_tables()
     db_manager.insert_data()
+    print("ta feito chefe")
