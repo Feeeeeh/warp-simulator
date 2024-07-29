@@ -10,14 +10,22 @@ class WarpSimulator:
         self.root = root
         self.user_id = user_id  # Store the user ID
         self.root.title("Warp Simulator")
-        self.root.geometry("1000x500")
+        self.root.geometry("1100x500")  # Increase width to accommodate the new frame
         root.resizable(False, False)
         
         self.style = Style(theme='darkly')
         self.style.configure('custom.TNotebook', tabposition="wn", padding=[5, 5])
         self.style.configure('TNotebook.Tab', width=15)
 
-        self.notebook = Notebook(style='custom.TNotebook')
+        # Create a main frame to hold the notebook and the right frame
+        main_frame = Frame(root)
+        main_frame.pack(fill='both', expand=True)
+
+        # Create a frame for the notebook
+        notebook_frame = Frame(main_frame)
+        notebook_frame.pack(side='left', fill='both', expand=True)
+
+        self.notebook = Notebook(notebook_frame, style='custom.TNotebook')
         self.notebook.pack(expand=True, fill='both')
         
         self.image_references = []
@@ -37,6 +45,12 @@ class WarpSimulator:
         self.current_10x_index = 0
 
         self.create_tabs()
+
+        # Create the right frame
+        self.right_frame = Frame(main_frame, width=200)
+        self.right_frame.pack(side='right', fill='y')
+        self.right_frame.pack_propagate(False)
+        self.create_right_frame_content()
 
         pygame.mixer.init()
 
@@ -96,6 +110,13 @@ class WarpSimulator:
         button1.pack(in_=frame, anchor='s', side='left', fill="both", expand=True)
         button10.pack(in_=frame, anchor='s', side='right', fill="both", expand=True)
         
+    def create_right_frame_content(self):
+        # Add content to the right frame, e.g., a label and a button
+        label = tk.Label(self.right_frame, text="Right Frame", font=("Arial", 16))
+        label.pack(pady=20)
+        button = Button(self.right_frame, text="Example Button")
+        button.pack(pady=20)
+
     def mapear_item(self, nome):
         if "firefly" in nome:
             return "Firefly"
