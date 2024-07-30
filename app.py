@@ -62,7 +62,7 @@ class WarpSimulator:
         self.right_frame = Frame(main_frame, width=200)
         self.right_frame.pack(side='right', fill='y')
         self.right_frame.pack_propagate(False)
-        
+
         # Fetch and display user name
         cursor = self.db_conn.cursor()
         query = "SELECT nome FROM login WHERE id = %s"
@@ -75,16 +75,16 @@ class WarpSimulator:
             texto = "No user found with the given ID."
         label = tk.Label(self.right_frame, text=texto)
         label.pack(pady=20)
-        
+
         # Fetch and display user inventory
         inventory = self.get_user_inventory()
         total_jade = sum(item[2] for item in inventory)
-        
+
         inventory_text = "Inventory:\n"
         for item in inventory:
             inventory_text += f"{item[0]}: {item[1]}\n"
         inventory_text += f"\nTotal Jade: {total_jade}"
-        
+
         self.inventory_label = tk.Label(self.right_frame, text=inventory_text, justify='left')
         self.inventory_label.pack(pady=20)
 
@@ -266,18 +266,17 @@ class WarpSimulator:
         
         label = tk.Label(img_frame, image=result_image)
         label.pack()
-        self.image_references.append(result_image)
+        self.image_references.append(result_image) # lista
         
         frame = Frame(result_window, bootstyle="dark")
         frame.pack(side="bottom", fill="both")
         
-        next_button = Button(result_window, bootstyle="light", text="Next", command=lambda: self.proximo(result_window, label))
+        next_button = Button(result_window, bootstyle="light", text="Next", command=lambda: self.proximo(label))
         next_button.pack(in_=frame, anchor='s', side='left', fill="both", expand=True)
-
         # Play the result song
         self.play_audio("imagens/result_song.mp3")
 
-    def proximo(self, result_window, label):
+    def proximo(self, label):
         if self.current_10x_index < len(self.fila):
             result_image_path = self.fila[self.current_10x_index]
             new_image = ImageTk.PhotoImage(Image.open(result_image_path))
