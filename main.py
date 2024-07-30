@@ -1,61 +1,37 @@
-import tkinter as tk
-from ttkbootstrap import *
-from PIL import ImageTk, Image 
+import mysql.connector
+from mysql.connector import errorcode
+from new_db import DatabaseManager
 
 
-root = tk.Tk()
-root.title("Warp Simulator")
-root.geometry("800x500")
+# Database configuration
+config = {
+    'user': 'root',
+    'password': '',
+    'host': 'localhost'
+}
 
-# Configuração do estilo ttkbootstrap
-style = Style(theme='darkly')  # Escolha do tema 'darkly'
-style.configure('custom.TNotebook', tabposition="wn",padding=[5, 5])
-style.configure('TNotebook.Tab', width=15)
+database_name = 'hsr'
 
-# Notebook (abas)
-notebook = Notebook(style='custom.TNotebook')
-notebook.pack(expand=True, fill='both') 
-image_references = []
+def database_exists(cursor, db_name):
+    cursor.execute("SHOW DATABASES LIKE '%s'" % db_name)
+    return cursor.fetchone()
 
-def botoes(tab):
-    frame = Frame(tab,bootstyle="dark")
-    frame.pack(side="bottom",fill="both")
-    button1 = Button(tab,bootstyle="dark",text="Warp 1x")
-    button10 = Button(tab,bootstyle="dark",text="Warp 10x")
-    button1.pack(in_=frame,anchor='s',side='left',fill="both",expand=True)
-    button10.pack(in_=frame,anchor='s',side='right',fill="both",expand=True)
-def firefly(): # Primeira aba
-    firefly_tab = Frame(notebook,width=200,height=200)
-    notebook.add(firefly_tab, text="Firefly", padding=10) 
-    firefly_banner = ImageTk.PhotoImage(Image.open("imagens/firefly_banner.png"))
-    image_references.append(firefly_banner)
-    Label(firefly_tab, image=firefly_banner).pack()
-    botoes(firefly_tab)
-
-def cone(): # Segunda aba
-    cone_tab = Frame(notebook,width=200,height=200)
-    notebook.add(cone_tab, text="Light Cone", padding=10)
-    cone_banner = ImageTk.PhotoImage(Image.open("imagens/cone_banner.png"))
-    image_references.append(cone_banner)
-    Label(cone_tab, image=cone_banner).pack()  
-    botoes(cone_tab)
-
-def standard(): # Terceira aba
-    standard_tab = Frame(notebook,width=200,height=200)
-    notebook.add(standard_tab, text="Standard", padding=10)
-    warp = Image.open("imagens/Stellar_Warp.png")
-    warp1 = warp.resize((700,387))
-    warp_r = ImageTk.PhotoImage(warp1)
-    image_references.append(warp_r)
-    Label(standard_tab, image=warp_r).pack()
-    botoes(standard_tab)
+try:
+    conn = mysql.connector.connect(**config)
+    cursor = conn.cursor()
+    if not database_exists(cursor, database_name):
+        db_manager = DatabaseManager()
+        db_manager.create_tables()
+        db_manager.insert_data()
+        print("Database criado")
+    else:
+        print("Acessando database")
+except mysql.connector.Error as err:
+    if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+        print("Something is wrong with your user name or password")
+    elif err.errno == errorcode.ER_BAD_DB_ERROR:
+        print("Database does not exist")
+    else:
+        print(err)
     
-    
-def main():
-    firefly()
-    cone()
-    standard()
-    root.mainloop()
-
-if __name__ == "__main__":
-    main()
+from login_gacha import *
