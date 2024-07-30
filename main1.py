@@ -5,11 +5,13 @@ from gif_loader import AnimatedGif
 import mysql.connector
 import random
 import pygame
-from database import mapear_item, salvar_resultados, realizar_consulta_aleatoria, escolher_operacao
+import sys  # Para acessar argumentos da linha de comando
+from data_tetst import mapear_item, salvar_resultados, realizar_consulta_aleatoria, escolher_operacao
 
 class WarpSimulator:
-    def __init__(self, root):
+    def __init__(self, root, user_id):
         self.root = root
+        self.user_id = user_id
         self.root.title("Warp Simulator")
         self.root.geometry("800x500")
         root.resizable(False, False)
@@ -108,7 +110,6 @@ class WarpSimulator:
         print(resultado)
         self.show_gif_and_result(resultado)
 
-
     def pull10x(self, x):
         print("10 pulls")
         self.fila = [random.choice(x) for _ in range(10)]
@@ -119,7 +120,6 @@ class WarpSimulator:
         print(self.fila)
         self.current_10x_index = 0
         self.show_gif_and_result(self.fila)
-
 
     def show_gif_and_result(self, resultado):
         new_window = tk.Toplevel(self.root)
@@ -180,17 +180,23 @@ class WarpSimulator:
 
     def close_all_windows(self):
         for window in self.root.winfo_children():
-            if isinstance(window, tk.Toplevel):
-                window.destroy()
+            window.destroy()
 
     def play_audio(self, audio_path):
-        pygame.mixer.music.load(audio_path)
-        pygame.mixer.music.play()
+        try:
+            pygame.mixer.music.load(audio_path)
+            pygame.mixer.music.play()
+        except pygame.error as e:
+            print(f"Error loading or playing audio file: {e}")
 
-def main():
+def main(user_id):
     root = tk.Tk()
-    app = WarpSimulator(root)
+    app = WarpSimulator(root, user_id)
     root.mainloop()
 
 if __name__ == "__main__":
-    main()
+    if len(sys.argv) > 1:
+        user_id = sys.argv[1]
+        main(user_id)
+    else:
+        print("Usage: python main.py <user_id>")

@@ -1,6 +1,7 @@
 import mysql.connector
 
 def login():
+    print("está pegando o errado porra")
     # Solicita o nome de usuário e a senha
     username = input("Digite seu nome de usuário: ")
     password = input("Digite sua senha: ")
