@@ -9,3 +9,4 @@
 5 - armazenar quantas gemas o usuario gastou no total (160 por tiro)
 
 6 - mostrar tudo isso em uma janela lateral a direita dos banners
+6 - mostrar tudo isso em uma janela lateral a direita dos banners

@@ -49,10 +49,11 @@ class DatabaseManager:
                 CREATE TABLE IF NOT EXISTS save_char (
                     id INT PRIMARY KEY AUTO_INCREMENT,
                     user_id INT,
-                    nome VARCHAR(100),
-                    quantidade SMALLINT NOT NULL,
-                    jade SMALLINT NOT NULL,
-                    FOREIGN KEY (user_id) REFERENCES login(id)
+                    nome VARCHAR(255),
+                    quantidade INT,
+                    jade INT,
+                    FOREIGN KEY (user_id) REFERENCES login(id),
+                    UNIQUE(user_id, nome) -- faz com que cada usuario tenha entradas unicas
                 )
             ''')
             self.conn.commit()
@@ -71,21 +72,31 @@ class DatabaseManager:
                 ('qiqi'), ('firefly1'), ('firefly2'), ('firefly3'), ('firefly4'),
                 ('lixo1'), ('lixo2'), ('lixo3'), ('lixo4'), ('lixo5'),
                 ('lixo6'), ('lixo7'), ('lixo8'), ('lixo9'), ('lixo10'),
-                ('lixo11')
+                ('lixo11'),('lixo12'),('lixo13'),('lixo14'),('lixo15'),
+                ('lixo16'),('lixo17'),('lixo18'),('lixo19'),('lixo20'),
+                ('lixo21'),('lixo22'),('lixo23'),('lixo24'),('lixo25'),
+                ('lixo26'),('lixo27'),('lixo28'),('lixo29'),('lixo30'),
+                ('lixo31'),('lixo32'),('lixo33'),('lixo34'),('lixo35')
             ''')
             cursor.execute('''
                 INSERT INTO gacha_arma (nome) VALUES
                 ('qiqi'), ('arma1'), ('arma2'), ('arma3'), ('arma4'),
                 ('lixo1'), ('lixo2'), ('lixo3'), ('lixo4'), ('lixo5'),
                 ('lixo6'), ('lixo7'), ('lixo8'), ('lixo9'), ('lixo10'),
-                ('lixo11')
+                ('lixo11'),('lixo12'),('lixo13'),('lixo14'),('lixo15'),
+                ('lixo16'),('lixo17'),('lixo18'),('lixo19'),('lixo20'),
+                ('lixo21'),('lixo22'),('lixo23'),('lixo24'),('lixo25'),
+                ('lixo26'),('lixo27'),('lixo28'),('lixo29'),('lixo30')
             ''')
             cursor.execute('''
                 INSERT INTO gacha_base (nome) VALUES
                 ('qiqi'), ('base1'), ('base2'), ('base3'), ('base4'),
                 ('lixo1'), ('lixo2'), ('lixo3'), ('lixo4'), ('lixo5'),
                 ('lixo6'), ('lixo7'), ('lixo8'), ('lixo9'), ('lixo10'),
-                ('lixo11')
+                ('lixo11'),('lixo12'),('lixo13'),('lixo14'),('lixo15'),
+                ('lixo16'),('lixo17'),('lixo18'),('lixo19'),('lixo20'),
+                ('lixo21'),('lixo22'),('lixo23'),('lixo24'),('lixo25'),
+                ('lixo26'),('lixo27'),('lixo28'),('lixo29'),('lixo30')
             ''')
             self.conn.commit()
         except mysql.connector.Error as err:
@@ -96,3 +107,4 @@ if __name__ == "__main__":
     db_manager = DatabaseManager()
     db_manager.create_tables()
     db_manager.insert_data()
+    print("ta feito chefe")

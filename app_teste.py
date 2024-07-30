@@ -32,7 +32,7 @@ class WarpSimulator:
         
         self.standard_possible_results = [
             "imagens/bronya_pull.png", "imagens/clara_pull.png", "imagens/gepard_pull.png", 
-            "imagens/himeko_pull.png", "imagens/welt_pull.png", "imagens/yanqing_pull.png", "imagens/bailu_pull.png"
+            "imagens/himeko_pull.png", "imagens/welt_pull.png", "imagens/yanqing_pull.png", "imagens/bailu_pull"
         ]
         self.mapping = {
             "imagens/bronya_pull.png": "Bronya",
@@ -62,11 +62,10 @@ class WarpSimulator:
         self.right_frame = Frame(main_frame, width=200)
         self.right_frame.pack(side='right', fill='y')
         self.right_frame.pack_propagate(False)
-        
-        # Fetch and display user name
+        # Add content
         cursor = self.db_conn.cursor()
         query = "SELECT nome FROM login WHERE id = %s"
-        cursor.execute(query, (self.user_id,))
+        cursor.execute(query,(self.user_id,))
         result = cursor.fetchone()
         if result:
             name = result[0]
@@ -79,28 +78,16 @@ class WarpSimulator:
         # Fetch and display user inventory
         inventory = self.get_user_inventory()
         total_jade = sum(item[2] for item in inventory)
-        
+
         inventory_text = "Inventory:\n"
         for item in inventory:
             inventory_text += f"{item[0]}: {item[1]}\n"
         inventory_text += f"\nTotal Jade: {total_jade}"
-        
-        self.inventory_label = tk.Label(self.right_frame, text=inventory_text, justify='left')
-        self.inventory_label.pack(pady=20)
 
+        inventory_label = tk.Label(self.right_frame, text=inventory_text, justify='left')
+        inventory_label.pack(pady=20)
 
         pygame.mixer.init()
-        
-    def update_right_frame(self):
-        inventory = self.get_user_inventory()
-        total_jade = sum(item[2] for item in inventory)
-    
-        inventory_text = "Inventory:\n"
-        for item in inventory:
-            inventory_text += f"{item[0]}: {item[1]}\n"
-        inventory_text += f"\nTotal Jade: {total_jade}"
-    
-        self.inventory_label.config(text=inventory_text)
 
     def connect_to_database(self):
         try:
@@ -167,7 +154,7 @@ class WarpSimulator:
         # Ensure results is always a list for uniform processing
         if not isinstance(results, list):
             results = [results]
-
+        
         for result in results:
             result_mapped = self.mapear_item(result)
             try:
@@ -176,7 +163,7 @@ class WarpSimulator:
                     SELECT quantidade FROM save_char WHERE user_id = %s AND nome = %s
                 ''', (self.user_id, result_mapped))
                 row = cursor.fetchone()
-
+    
                 if row:
                     new_quantity = row[0] + 1
                     new_jade = 160 * new_quantity
@@ -189,13 +176,10 @@ class WarpSimulator:
                         INSERT INTO save_char (user_id, nome, quantidade, jade)
                         VALUES (%s, %s, %s, %s)
                     ''', (self.user_id, result_mapped, 1, 160))
-
+                
                 self.db_conn.commit()
             except mysql.connector.Error as err:
                 print(f"Error: {err}")
-
-        self.update_right_frame()
-
 
 
     def pull1x(self, x):
@@ -232,12 +216,8 @@ class WarpSimulator:
     def show_gif_and_result(self, resultado):
         new_window = tk.Toplevel(self.root)
         new_window.resizable(False, False)
-        if "imagens/qiqi_pull.png" in resultado:
-            gif_path = "imagens/qiqi.gif"
-        elif "imagens/firefly_pull.png" in resultado or "imagens/firefly_cone.png" in resultado or any(item in resultado for item in self.standard_possible_results):
-            gif_path = "imagens/5_estrelas.gif"
-        else:
-            gif_path = "imagens/3_estrelas.gif"
+        gif_path = "imagens/qiqi.gif" if "imagens/qiqi_pull.png" in resultado else "imagens/5_estrelas.gif" if "imagens/firefly_pull.png" in resultado else "imagens/3_estrelas.gif"
+  
         gif = AnimatedGif(new_window, gif_path, loop=False, on_complete=lambda: self.show_result(new_window, resultado))
         gif.pack()
 
