@@ -19,14 +19,15 @@ def handle_login():
 
     if user_id:
         root.withdraw()  # Hide the login window
-        if subprocess.call(["python", "app_teste.py", str(user_id)]):
-            root.deiconify()  # Show the login window again if the main app closes
-        else:
-            messagebox.showerror("Error", "An error occurred while running the main application.")
-            root.deiconify()  # Show the login window again if there was an error
+        try:
+            subprocess.call(["python", "app.py", str(user_id)])
+        except Exception as e:
+            root.deiconify()
+            messagebox.showerror("Error", f"An unexpected error occurred: {e}")
+        root.deiconify()  # Show the login window again when the main app closes
     else:
         messagebox.showerror("Login Error", "Invalid username or password.")
-
+    
     # Call clear_entries() only if the widgets are valid
     if entry_username.winfo_exists() and entry_password.winfo_exists():
         clear_entries()  # Clear the entry fields after attempting login

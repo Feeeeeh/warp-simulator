@@ -8,9 +8,9 @@ import random, pygame, sys
 class WarpSimulator:
     def __init__(self, root, user_id):
         self.root = root
-        self.user_id = user_id  # Store the user ID
+        self.user_id = user_id
         self.root.title("Warp Simulator")
-        self.root.geometry("1100x500")  # Increase width to accommodate the new frame
+        self.root.geometry("1100x500")
         root.resizable(False, False)
         
         self.style = Style(theme='darkly')
@@ -31,10 +31,22 @@ class WarpSimulator:
         self.image_references = []
         
         self.standard_possible_results = [
-            "imagens/firefly_pull.png", "imagens/bailu_pull.png", "imagens/bronya_pull.png", 
-            "imagens/clara_pull.png", "imagens/gepard_pull.png", "imagens/himeko_pull.png", 
-            "imagens/welt_pull.png", "imagens/yanqing_pull.png"
+            "imagens/bronya_pull.png", "imagens/clara_pull.png", "imagens/gepard_pull.png", 
+            "imagens/himeko_pull.png", "imagens/welt_pull.png", "imagens/yanqing_pull.png", "imagens/bailu_pull"
         ]
+        self.mapping = {
+            "imagens/bronya_pull.png": "Bronya",
+            "imagens/clara_pull.png": "Clara",
+            "imagens/gepard_pull.png": "Gepard",
+            "imagens/himeko_pull.png": "Himeko",
+            "imagens/welt_pull.png": "Welt",
+            "imagens/yanqing_pull.png": "Yanqing",
+            "imagens/bailu_pull.png": "Bailu",
+            "imagens/firefly_pull.png": "Firefly",
+            "imagens/firefly_cone.png": "Cone",
+            "imagens/qiqi_pull.png": "Qiqi",
+            "imagens/lixo_lc.png": "Lixo"
+        }
         
         self.db_conn = self.connect_to_database()
         self.firefly_pulls = self.get_data_from_db("gacha_ff")
@@ -50,7 +62,30 @@ class WarpSimulator:
         self.right_frame = Frame(main_frame, width=200)
         self.right_frame.pack(side='right', fill='y')
         self.right_frame.pack_propagate(False)
-        self.create_right_frame_content()
+        # Add content
+        cursor = self.db_conn.cursor()
+        query = "SELECT nome FROM login WHERE id = %s"
+        cursor.execute(query,(self.user_id,))
+        result = cursor.fetchone()
+        if result:
+            name = result[0]
+            texto = f"User Name: {name}"
+        else:
+            texto = "No user found with the given ID."
+        label = tk.Label(self.right_frame, text=texto)
+        label.pack(pady=20)
+        
+        # Fetch and display user inventory
+        inventory = self.get_user_inventory()
+        total_jade = sum(item[2] for item in inventory)
+
+        inventory_text = "Inventory:\n"
+        for item in inventory:
+            inventory_text += f"{item[0]}: {item[1]}\n"
+        inventory_text += f"\nTotal Jade: {total_jade}"
+
+        inventory_label = tk.Label(self.right_frame, text=inventory_text, justify='left')
+        inventory_label.pack(pady=20)
 
         pygame.mixer.init()
 
@@ -110,24 +145,9 @@ class WarpSimulator:
         button1.pack(in_=frame, anchor='s', side='left', fill="both", expand=True)
         button10.pack(in_=frame, anchor='s', side='right', fill="both", expand=True)
         
-    def create_right_frame_content(self):
-        # Add content to the right frame, e.g., a label and a button
-        label = tk.Label(self.right_frame, text="Right Frame", font=("Arial", 16))
-        label.pack(pady=20)
-        button = Button(self.right_frame, text="Example Button")
-        button.pack(pady=20)
 
     def mapear_item(self, nome):
-        if "firefly" in nome:
-            return "Firefly"
-        elif "arma" in nome:
-            return "Cone"
-        elif "base" in nome:
-            return "Standard"
-        elif "lixo" in nome:
-            return "Lixo"
-        else:
-            return "Unknown"
+        return self.mapping.get(nome, "Unknown")
 
 
     def save_result_to_db(self, results):
@@ -171,6 +191,8 @@ class WarpSimulator:
             resultado = "imagens/firefly_pull.png"
         elif resultado in ['arma1', 'arma2', 'arma3', 'arma4']:
             resultado = "imagens/firefly_cone.png"
+        elif resultado == "qiqi":
+            resultado = "imagens/qiqi_pull.png"
         else:
             resultado = "imagens/lixo_lc.png"
         print(resultado)
@@ -183,6 +205,7 @@ class WarpSimulator:
         self.fila = [random.choice(self.standard_possible_results) if item in ['base1', 'base2', 'base3', 'base4']
                      else "imagens/firefly_cone.png" if item in ['arma1', 'arma2', 'arma3', 'arma4']
                      else "imagens/firefly_pull.png" if item in ["firefly1","firefly2","firefly3","firefly4"]
+                     else "imagens/qiqi_pull.png" if item == "qiqi"
                      else "imagens/lixo_lc.png" for item in self.fila]
         print(self.fila)
         self.save_result_to_db(self.fila)  # Save results to database
@@ -193,7 +216,7 @@ class WarpSimulator:
     def show_gif_and_result(self, resultado):
         new_window = tk.Toplevel(self.root)
         new_window.resizable(False, False)
-        gif_path = "imagens/qiqi.gif" if "qiqi" in resultado else "imagens/5_estrelas.gif" if "imagens/firefly_pull.png" in resultado else "imagens/3_estrelas.gif"
+        gif_path = "imagens/qiqi.gif" if "imagens/qiqi_pull.png" in resultado else "imagens/5_estrelas.gif" if "imagens/firefly_pull.png" in resultado else "imagens/3_estrelas.gif"
   
         gif = AnimatedGif(new_window, gif_path, loop=False, on_complete=lambda: self.show_result(new_window, resultado))
         gif.pack()
@@ -255,6 +278,18 @@ class WarpSimulator:
     def play_audio(self, audio_path):
         pygame.mixer.music.load(audio_path)
         pygame.mixer.music.play()
+        
+    def get_user_inventory(self):
+        try:
+            cursor = self.db_conn.cursor()
+            cursor.execute('''
+                SELECT nome, quantidade, jade FROM save_char WHERE user_id = %s
+            ''', (self.user_id,))
+            rows = cursor.fetchall()
+            return rows
+        except mysql.connector.Error as err:
+            print(f"Error: {err}")
+            return []
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
