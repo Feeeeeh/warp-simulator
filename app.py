@@ -12,7 +12,7 @@ class WarpSimulator:
         self.root.geometry("1100x500")
         root.resizable(False, False)
         
-        self.style = Style(theme='darkly')
+        self.style = Style(theme='darkly') # estilo da biblioteca ttkbootstrap
         self.style.configure('custom.TNotebook', tabposition="wn", padding=[5, 5])
         self.style.configure('TNotebook.Tab', width=15)
 
@@ -105,7 +105,7 @@ class WarpSimulator:
             widget.destroy()
     
     
-        # nome do usuario no topo
+        # coloca o nome do usuario no topo
         cursor = self.db_conn.cursor()
         query = "SELECT nome FROM login WHERE id = %s"
         cursor.execute(query, (self.user_id,))
@@ -130,7 +130,7 @@ class WarpSimulator:
     
             row, col = 0, 0
             for item in ordered_inventory:
-                item_frame = LabelFrame(inventory_frame, text=item[0], bootstyle="primary", padding=5, width=90, height=50)
+                item_frame = LabelFrame(inventory_frame, text=item[0], bootstyle="danger", padding=5, width=90, height=50)
                 item_frame.grid(row=row, column=col, padx=5, pady=5, sticky="nsew")
     
                 item_label = Label(item_frame, text=f"Qty: {item[1]}", justify='center')
@@ -249,9 +249,7 @@ class WarpSimulator:
 
 
     def pull1x(self, gacha): # 1 tentativa no gacha
-        print("1 pull")
-        
-        
+        print("1 pull")        
         # "gacha" é a lista que foi mandada quando o botão foi criado
         # aquela que foi pega do database com a função get_data_from_db
         resultado = random.choice(gacha) 
