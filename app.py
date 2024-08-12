@@ -2,8 +2,7 @@ import tkinter as tk
 from ttkbootstrap import Style, Frame, Button, Notebook, LabelFrame, Label
 from PIL import ImageTk, Image
 from gif_loader import AnimatedGif
-import mysql.connector
-import random, pygame, sys
+import mysql.connector, random, pygame, sys
 
 class WarpSimulator:
     def __init__(self, root, user_id):
@@ -61,15 +60,17 @@ class WarpSimulator:
         self.cone_pulls = self.get_data_from_db("gacha_arma")
         self.standard_pulls = self.get_data_from_db("gacha_base")
 
-        self.fila = [] # fila dos itens que você pegou, é necessario para pegar item por item na tela que mostra os resultados
-        self.current_10x_index = 0 # usado pra pegar a posição dos itens na fila
+         # lista dos itens que você pegou
+        self.fila = []
+        self.current_10x_index = 0 
+        # usado pra pegar a posição dos itens na fila
 
         self.create_tabs() # cria as três abas do notebook
  
         # cria o frame da direita que mostra suas informações e inventário
         self.right_frame = Frame(main_frame, width=200)
         self.right_frame.pack(side='right', fill='y')
-        self.right_frame.pack_propagate(False)
+        self.right_frame.pack_propagate(False) # evita que o frame mude de tamanho
 
         # pega e mostra o nome do usuario que está logado
         cursor = self.db_conn.cursor()
@@ -96,10 +97,8 @@ class WarpSimulator:
         self.item_order = ["Firefly", "Cone", "Himeko", "Bronya", "Clara", "Gepard", "Welt", "Yanqing", "Bailu", "Qiqi", "Lixo"]
         ordered_inventory = sorted(inventory, key=lambda item: self.item_order.index(item[0]) if item[0] in self.item_order else len(self.item_order))
     
-        # pega o valor total de jade, somando todos os valores dos itens pra mostrar seu gasto total
+        # pega o valor total de jade, somando todos os valores dos itens
         total_jade = sum(item[2] for item in ordered_inventory)
-        total_jade_label = Label(self.right_frame, text=f"Jades Gastas: {total_jade}", bootstyle="warning, inverse", font=("Arial", 12, "bold"))
-        total_jade_label.pack(pady=(5, 15), fill='x')
     
         # limpa o frame pra atualizar sem erros
         for widget in self.right_frame.winfo_children():
@@ -119,6 +118,9 @@ class WarpSimulator:
     
         username_label = Label(self.right_frame, text=username_text, bootstyle="info, inverse", font=("Arial", 14, "bold"))
         username_label.pack(pady=(10, 5), fill='x')
+        
+        total_jade_label = Label(self.right_frame, text=f"Jades Gastas: {total_jade}", bootstyle="warning, inverse", font=("Arial", 12, "bold"))
+        total_jade_label.pack(pady=(5, 15), fill='x')
     
     
         # mostra os itens do seu inventário em uma grid organizada
@@ -169,7 +171,7 @@ class WarpSimulator:
         self.create_tab("imagens/cone_banner.png", "imagens/cone_icon.png", lambda: self.pull1x(self.cone_pulls), lambda: self.pull10x(self.cone_pulls))
         self.create_standard_tab("imagens/Stellar_Warp.png", lambda: self.pull1x(self.standard_pulls), lambda: self.pull10x(self.standard_pulls))
 
-    # criador basico de aba
+    # criador basico de abas
     def create_tab(self, banner_image_path, icon_path, pull1x_command, pull10x_command):
         tab = Frame(self.notebook, width=200, height=200)
         img = ImageTk.PhotoImage(Image.open(icon_path))
@@ -193,7 +195,7 @@ class WarpSimulator:
         tk.Label(tab, image=warp_image).pack()
         self.create_buttons(tab, pull1x_command, pull10x_command)
 
-    # cria 2 botões, esperando um parametro de comando
+    # cria 2 botões, esperando um comando como parametro
     # fiz assim pois as 3 abas usam comandos diferentes pros botões
     def create_buttons(self, tab, pull1x_command, pull10x_command):
         frame = Frame(tab, bootstyle="dark")
