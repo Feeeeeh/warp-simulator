@@ -159,25 +159,25 @@ class WarpSimulator:
             return []
 
     def create_tabs(self):
-        self.create_tab("Firefly", "imagens/firefly_banner.png", "imagens/firefly_icon.png", lambda: self.pull1x(self.firefly_pulls), lambda: self.pull10x(self.firefly_pulls))
-        self.create_tab("Light Cone", "imagens/cone_banner.png", "imagens/cone_icon.png", lambda: self.pull1x(self.cone_pulls), lambda: self.pull10x(self.cone_pulls))
-        self.create_standard_tab("Standard", "imagens/Stellar_Warp.png", lambda: self.pull1x(self.standard_pulls), lambda: self.pull10x(self.standard_pulls))
+        self.create_tab("imagens/firefly_banner.png", "imagens/firefly_icon.png", lambda: self.pull1x(self.firefly_pulls), lambda: self.pull10x(self.firefly_pulls))
+        self.create_tab("imagens/cone_banner.png", "imagens/cone_icon.png", lambda: self.pull1x(self.cone_pulls), lambda: self.pull10x(self.cone_pulls))
+        self.create_standard_tab("imagens/Stellar_Warp.png", lambda: self.pull1x(self.standard_pulls), lambda: self.pull10x(self.standard_pulls))
 
-    def create_tab(self, title, banner_image_path, icon_path, pull1x_command, pull10x_command):
+    def create_tab(self, banner_image_path, icon_path, pull1x_command, pull10x_command):
         tab = Frame(self.notebook, width=200, height=200)
         img = ImageTk.PhotoImage(Image.open(icon_path))
         self.image_references.append(img)
-        self.notebook.add(tab, text=title, padding=10, image=img, compound="center")
+        self.notebook.add(tab, padding=10, image=img, compound="center")
         banner_image = ImageTk.PhotoImage(Image.open(banner_image_path))
         self.image_references.append(banner_image)
         tk.Label(tab, image=banner_image).pack()
         self.create_buttons(tab, pull1x_command, pull10x_command)
 
-    def create_standard_tab(self, title, banner_image_path, pull1x_command, pull10x_command):
+    def create_standard_tab(self, banner_image_path, pull1x_command, pull10x_command):
         tab = Frame(self.notebook, width=200, height=200)
         img = ImageTk.PhotoImage(Image.open("imagens/base_icon.png"))
         self.image_references.append(img)
-        self.notebook.add(tab, text=title, padding=10, image=img, compound="center")
+        self.notebook.add(tab, padding=10, image=img, compound="center")
         warp = Image.open(banner_image_path)
         warp_resized = warp.resize((700, 387))
         warp_image = ImageTk.PhotoImage(warp_resized)
