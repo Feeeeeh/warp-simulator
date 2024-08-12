@@ -1,5 +1,5 @@
 import tkinter as tk
-from ttkbootstrap import Style, Frame, Button, Notebook
+from ttkbootstrap import Style, Frame, Button, Notebook, LabelFrame, Label
 from PIL import ImageTk, Image
 from gif_loader import AnimatedGif
 import mysql.connector
@@ -47,6 +47,8 @@ class WarpSimulator:
             "imagens/qiqi_pull.png": "Qiqi",
             "imagens/lixo_lc.png": "Lixo"
         }
+
+        self.item_order = ["Firefly", "Himeko", "Bronya", "Clara", "Gepard", "Welt", "Yanqing", "Bailu", "Cone", "Qiqi", "Lixo"]
         
         self.db_conn = self.connect_to_database()
         self.firefly_pulls = self.get_data_from_db("gacha_ff")
@@ -76,31 +78,62 @@ class WarpSimulator:
         label = tk.Label(self.right_frame, text=texto)
         label.pack(pady=20)
 
-        # Fetch and display user inventory
-        inventory = self.get_user_inventory()
-        total_jade = sum(item[2] for item in inventory)
-
-        inventory_text = "Inventory:\n"
-        for item in inventory:
-            inventory_text += f"{item[0]}: {item[1]}\n"
-        inventory_text += f"\nTotal Jade: {total_jade}"
-
-        self.inventory_label = tk.Label(self.right_frame, text=inventory_text, justify='left')
-        self.inventory_label.pack(pady=20)
+        # Display the user name and inventory
+        self.update_right_frame()
 
 
         pygame.mixer.init()
-        
+
+
     def update_right_frame(self):
         inventory = self.get_user_inventory()
-        total_jade = sum(item[2] for item in inventory)
     
-        inventory_text = "Inventory:\n"
-        for item in inventory:
-            inventory_text += f"{item[0]}: {item[1]}\n"
-        inventory_text += f"\nTotal Jade: {total_jade}"
+        # Order the inventory based on the desired display order
+        self.item_order = ["Firefly", "Cone", "Himeko", "Bronya", "Clara", "Gepard", "Welt", "Yanqing", "Bailu", "Qiqi", "Lixo"]
+        ordered_inventory = sorted(inventory, key=lambda item: self.item_order.index(item[0]) if item[0] in self.item_order else len(self.item_order))
     
-        self.inventory_label.config(text=inventory_text)
+        total_jade = sum(item[2] for item in ordered_inventory)
+    
+        # Clear the right frame before updating
+        for widget in self.right_frame.winfo_children():
+            widget.destroy()
+    
+        # Highlighted username at the top
+        cursor = self.db_conn.cursor()
+        query = "SELECT nome FROM login WHERE id = %s"
+        cursor.execute(query, (self.user_id,))
+        result = cursor.fetchone()
+        if result:
+            name = result[0]
+            username_text = f"{name}"
+        else:
+            username_text = "No user found with the given ID."
+    
+        username_label = Label(self.right_frame, text=username_text, bootstyle="info, inverse", font=("Arial", 14, "bold"))
+        username_label.pack(pady=(10, 5), fill='x')
+    
+        # Highlighted total jade below the username
+        total_jade_label = Label(self.right_frame, text=f"Jades Gastas: {total_jade}", bootstyle="warning, inverse", font=("Arial", 12, "bold"))
+        total_jade_label.pack(pady=(5, 15), fill='x')
+    
+        # Display inventory items in a grid
+        if ordered_inventory:  # Only display inventory if it exists
+            inventory_frame = Frame(self.right_frame)
+            inventory_frame.pack(fill="both", expand=True, padx=10)
+    
+            row, col = 0, 0
+            for item in ordered_inventory:
+                item_frame = LabelFrame(inventory_frame, text=item[0], bootstyle="primary", padding=5, width=90, height=50)
+                item_frame.grid(row=row, column=col, padx=5, pady=5, sticky="nsew")
+    
+                item_label = Label(item_frame, text=f"Qty: {item[1]}", justify='center')
+                item_label.pack(anchor='center')
+    
+                col += 1
+                if col > 1:  # Move to the next row after 2 items
+                    col = 0
+                    row += 1
+
 
     def connect_to_database(self):
         try:
@@ -126,13 +159,13 @@ class WarpSimulator:
             return []
 
     def create_tabs(self):
-        self.create_tab("Firefly", "imagens/firefly_banner.png", lambda: self.pull1x(self.firefly_pulls), lambda: self.pull10x(self.firefly_pulls))
-        self.create_tab("Light Cone", "imagens/cone_banner.png", lambda: self.pull1x(self.cone_pulls), lambda: self.pull10x(self.cone_pulls))
+        self.create_tab("Firefly", "imagens/firefly_banner.png", "imagens/firefly_icon.png", lambda: self.pull1x(self.firefly_pulls), lambda: self.pull10x(self.firefly_pulls))
+        self.create_tab("Light Cone", "imagens/cone_banner.png", "imagens/cone_icon.png", lambda: self.pull1x(self.cone_pulls), lambda: self.pull10x(self.cone_pulls))
         self.create_standard_tab("Standard", "imagens/Stellar_Warp.png", lambda: self.pull1x(self.standard_pulls), lambda: self.pull10x(self.standard_pulls))
 
-    def create_tab(self, title, banner_image_path, pull1x_command, pull10x_command):
+    def create_tab(self, title, banner_image_path, icon_path, pull1x_command, pull10x_command):
         tab = Frame(self.notebook, width=200, height=200)
-        img = ImageTk.PhotoImage(Image.open("imagens/firefly_icon.jpg"))
+        img = ImageTk.PhotoImage(Image.open(icon_path))
         self.image_references.append(img)
         self.notebook.add(tab, text=title, padding=10, image=img, compound="center")
         banner_image = ImageTk.PhotoImage(Image.open(banner_image_path))
@@ -142,7 +175,9 @@ class WarpSimulator:
 
     def create_standard_tab(self, title, banner_image_path, pull1x_command, pull10x_command):
         tab = Frame(self.notebook, width=200, height=200)
-        self.notebook.add(tab, text=title, padding=10)
+        img = ImageTk.PhotoImage(Image.open("imagens/base_icon.png"))
+        self.image_references.append(img)
+        self.notebook.add(tab, text=title, padding=10, image=img, compound="center")
         warp = Image.open(banner_image_path)
         warp_resized = warp.resize((700, 387))
         warp_image = ImageTk.PhotoImage(warp_resized)
