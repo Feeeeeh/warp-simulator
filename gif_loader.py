@@ -1,6 +1,8 @@
 import tkinter as tk
 from PIL import Image, ImageTk, ImageSequence
 
+# créditos ao usuario Flutterguy135 do stackoverflow
+
 class AnimatedGif:
     def __init__(self, root, src='', loop=True, on_complete=None):
         self.root = root

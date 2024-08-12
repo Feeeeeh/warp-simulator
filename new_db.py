@@ -1,5 +1,6 @@
 import mysql.connector
 
+# essa classe cria o database e salva os dados do usuario
 class DatabaseManager:
     def __init__(self):
         self.conn = mysql.connector.connect(
@@ -102,7 +103,7 @@ class DatabaseManager:
         except mysql.connector.Error as err:
             print(f"Error: {err}")
 
-# Usage example
+# exemplo de uso
 if __name__ == "__main__":
     db_manager = DatabaseManager()
     db_manager.create_tables()
