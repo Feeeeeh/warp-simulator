@@ -217,7 +217,8 @@ class WarpSimulator:
             results = [results]
 
         for result in results:
-            result_mapped = self.mapear_item(result) # mapeia o valor, já que ele recebe o caminho do arquivo e não o que ele representa
+            result_mapped = self.mapear_item(result) 
+            # mapeia o valor, já que ele recebe o caminho do arquivo e não o que ele representa
             try:
                 cursor = self.db_conn.cursor()
                 cursor.execute('''
@@ -227,7 +228,8 @@ class WarpSimulator:
 
                 if row: # caso já tenha algo naquela linha ele da update nela
                     new_quantity = row[0] + 1
-                    new_jade = 160 * new_quantity # multiplica a quantidade do item por 160, visto que cada item vale 160 jades
+                    new_jade = 160 * new_quantity
+                    # multiplica a quantidade do item por 160, visto que cada item vale 160 jades
                     cursor.execute('''
                         UPDATE save_char SET quantidade = %s, jade = %s
                         WHERE user_id = %s AND nome = %s
@@ -265,7 +267,8 @@ class WarpSimulator:
             resultado = "imagens/lixo_lc.png"
             
         print(resultado)
-        self.save_result_to_db(resultado)  # manda o que o usuario tirou no gacha pra database
+        # manda o que o usuario tirou no gacha pra database
+        self.save_result_to_db(resultado)
         self.gacha_gif(resultado)
 
     def pull10x(self, x): # 10 tentativas no gacha
@@ -283,7 +286,7 @@ class WarpSimulator:
 
     # cria uma nova janela mostrando a animação do gacha
     def gacha_gif(self, resultado):
-        new_window = tk.Toplevel(self.root) # toplevel cria uma nova janela como filha da que você usou como parametro
+        new_window = tk.Toplevel(self.root) # toplevel cria uma nova janela como filha da que você usou como parametro  
         new_window.resizable(False, False) # evita que a janela seja redimensionada pelo usuario
         
         if "imagens/qiqi_pull.png" in resultado:
@@ -314,9 +317,11 @@ class WarpSimulator:
             else:
                 self.close_all_windows() # caso ele for igual ou maior, mata todas as janelas
 
-    def create_result_window(self, window, image_path): # a janela que mostra o que você pegou, após o gif do gacha
+    # a janela que mostra o que você pegou, após o gif do gacha
+    def create_result_window(self, window, image_path): 
         result_window = tk.Toplevel(window)
-        result_image = ImageTk.PhotoImage(Image.open(image_path)) # image_path é aquele item unico que foi tirado da lista usando o valor do index 
+        result_image = ImageTk.PhotoImage(Image.open(image_path)) 
+        # image_path é aquele item unico que foi tirado da lista usando o valor do index 
         
         img_frame = Frame(result_window, width=600, height=300) # frame pra imagem
         img_frame.pack(fill="both", expand=True)
@@ -336,14 +341,15 @@ class WarpSimulator:
         self.play_audio("imagens/result_song.mp3") 
 
     def proximo(self, label):
-        if self.current_10x_index < len(self.fila): # mesma logica do index e do tamanho da fila ja mostrados
+        if self.current_10x_index < len(self.fila):
+            # mesma logica do index e do tamanho da fila ja mostrados
             result_image_path = self.fila[self.current_10x_index]
             new_image = ImageTk.PhotoImage(Image.open(result_image_path))
             self.image_references.append(new_image)
             label.config(image=new_image)
             self.current_10x_index += 1
 
-            # o audio toca todo novo item pra ter um feedback auditivo no caso de itens repetidos
+            # feedback auditivo pro caso de itens repetidos
             self.play_audio("imagens/result_song.mp3") 
         else:
             self.close_all_windows() 
