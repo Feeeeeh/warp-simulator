@@ -5,6 +5,7 @@ from gif_loader import AnimatedGif
 import mysql.connector
 import random, pygame, sys
 
+
 class WarpSimulator:
     def __init__(self, root, user_id):
         self.root = root

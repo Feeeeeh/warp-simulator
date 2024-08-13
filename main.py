@@ -9,7 +9,6 @@ config = {
     'password': '',
     'host': 'localhost'
 }
-
 database_name = 'hsr'
 
 # pega a database chamada "hsr"
